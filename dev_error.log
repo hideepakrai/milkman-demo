@@ -1,0 +1,10 @@
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3002
+   - Network:      http://192.168.1.3:3002
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 2.6s
+ ○ Compiling /[locale]/admin/dashboard ...
+ ✓ Compiled /[locale]/admin/dashboard in 1581ms (844 modules)
+ GET /en/admin/dashboard 200 in 13249ms
