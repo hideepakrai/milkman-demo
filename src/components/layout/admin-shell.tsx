@@ -33,6 +33,7 @@ type AdminShellProps = {
   title: string;
   subtitle: string;
   hideHero?: boolean;
+  search?: React.ReactNode;
 };
 
 type NavKey =
@@ -75,6 +76,7 @@ export function AdminShell({
   title,
   subtitle,
   hideHero,
+  search,
 }: AdminShellProps) {
   const pathname = usePathname();
   const router = useRouter();

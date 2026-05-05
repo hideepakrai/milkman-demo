@@ -31,7 +31,7 @@ type DeliveryEntry = {
 
 type DeliveryOperationsPanelProps = {
   entries: DeliveryEntry[];
-  areas: Array<{ code: string; name: string }>;
+  areas: Array<{ code: string; name: string | { en: string; hi: string; pa: string } }>;
   counts: {
     delivered: number;
     skipped: number;
@@ -99,10 +99,13 @@ export function DeliveryOperationsPanel({
     });
   }, [localEntries]);
 
-  const selectedAreaName = useMemo(
-    () => areas.find((area) => area.code === filters.area)?.name || "All locations",
-    [areas, filters.area],
-  );
+  const selectedAreaName = useMemo(() => {
+    const area = areas.find((a) => a.code === filters.area);
+    if (!area) return "All locations";
+    return typeof area.name === "string"
+      ? area.name
+      : area.name[locale as keyof typeof area.name] || area.name.en;
+  }, [areas, filters.area, locale]);
 
   useEffect(() => {
     if (startRun) {
@@ -130,10 +133,13 @@ export function DeliveryOperationsPanel({
     try {
       const response = await fetch("/api/areas", { cache: "no-store" });
       const data = (await response.json()) as {
-        areas?: Array<{ code: string; name: string; isActive?: boolean }>;
+        areas?: Array<{ code: string; name: string | { en: string; hi: string; pa: string }; isActive?: boolean }>;
       };
-      const areaPayload: Array<{ code: string; name: string; isActive?: boolean }> =
-        data.areas || areas;
+      const areaPayload: Array<{
+        code: string;
+        name: string | { en: string; hi: string; pa: string };
+        isActive?: boolean;
+      }> = data.areas || (areas as any);
       const activeAreas = areaPayload
         .filter((area) => area.isActive !== false)
         .map((area) => ({ code: area.code, name: area.name }));
@@ -369,7 +375,7 @@ export function DeliveryOperationsPanel({
             <option value="">All locations</option>
             {areas.map((area) => (
               <option key={area.code} value={area.code}>
-                {area.name}
+                {typeof area.name === "string" ? area.name : (area.name[locale as keyof typeof area.name] || area.name.en)}
               </option>
             ))}
           </select>
@@ -664,7 +670,7 @@ export function DeliveryOperationsPanel({
               className="flex items-center justify-between px-5 py-4 rounded-[16px] bg-white border border-gray-100 hover:bg-gray-50 text-left text-sm font-black text-gray-700 transition-colors group"
               onClick={() => selectLocation(area.code)}
             >
-              <span>{area.name}</span>
+              <span>{typeof area.name === "string" ? area.name : (area.name[locale as keyof typeof area.name] || area.name.en)}</span>
               <MapPin className="h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
             </button>
           ))}
