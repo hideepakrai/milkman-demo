@@ -510,17 +510,17 @@ export function DeliveryOperationsPanel({
                     <button
                       type="button"
                       onClick={() => handleQuantityChange(task.customerCode, -0.5)}
-                      disabled={task.baseQuantity + (task.extraQuantity || 0) <= 0.5}
+                      disabled={(task.baseQuantity || 0) + (task.extraQuantity || 0) <= 0.5}
                       className={cn(
                         "flex h-10 w-10 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-[12px] sm:rounded-full bg-white text-gray-600 shadow-sm border border-gray-100 hover:text-[#f43f5e] hover:border-[#ffe4e6] transition-all active:scale-90",
-                        task.baseQuantity + (task.extraQuantity || 0) <= 0.5 && "opacity-40 cursor-not-allowed"
+                        (task.baseQuantity || 0) + (task.extraQuantity || 0) <= 0.5 && "opacity-40 cursor-not-allowed"
                       )}
                     >
                       <Minus className="h-4 w-4 sm:h-3 sm:w-3 stroke-[3]" />
                     </button>
                     <div className="px-4 min-w-[70px] sm:min-w-[60px] shrink-0 text-center">
                       <span className="text-base sm:text-sm font-black text-gray-900 tracking-tighter">
-                        {(task.baseQuantity + (task.extraQuantity || 0)).toFixed(1)}L
+                        {((task.baseQuantity || 0) + (task.extraQuantity || 0)).toFixed(1)}L
                       </span>
                     </div>
                     <button
