@@ -281,7 +281,7 @@ const getBaseData = cache(async () => {
       MilkPlan.find({ isActive: true }).sort({ startDate: -1 }).lean<PlainMilkPlan[]>(),
       DeliveryException.find({ date: { $gte: monthStart, $lte: monthEnd } }).sort({ date: -1 }).lean<PlainDeliveryException[]>(),
       DeliveryException.find({ date: { $gte: todayStart, $lte: todayEnd } }).lean<PlainDeliveryException[]>(),
-      Delivery.find({ date: { $gte: todayStart, $lte: todayEnd } }).lean<any[]>(),
+      Delivery.find({ date: { $gte: todayStart, $lte: todayEnd } }).lean<Record<string, unknown>[]>(),
       Payment.find({ date: { $gte: monthStart, $lte: monthEnd } }).sort({ date: -1 }).lean<PlainPayment[]>(),
       Product.find().sort({ sortOrder: 1, name: 1 }).lean<PlainProduct[]>(),
       Vendor.find().sort({ sortOrder: 1, name: 1 }).lean<PlainVendor[]>(),
@@ -675,7 +675,21 @@ export async function getBillingData() {
     },
     customers,
     recentPayments: (() => {
-      const grouped = new Map<string, any>();
+      interface GroupedPayment {
+        customerId: string;
+        customerCode: string;
+        customerName: string;
+        date: Date;
+        dateLabel: string;
+        totalAmount: number;
+        transactions: Array<{
+          id: string;
+          amount: number;
+          mode: string;
+          note: string;
+        }>;
+      }
+      const grouped = new Map<string, GroupedPayment>();
       
       for (const payment of base.paymentsMonth) {
         const customerId = String(payment.customerId);
@@ -700,13 +714,15 @@ export async function getBillingData() {
         }
 
         const group = grouped.get(groupKey);
-        group.totalAmount += payment.amount;
-        group.transactions.push({
-          id: String(payment._id),
-          amount: payment.amount,
-          mode: payment.mode,
-          note: payment.note || "",
-        });
+        if (group) {
+          group.totalAmount += payment.amount;
+          group.transactions.push({
+            id: String(payment._id),
+            amount: payment.amount,
+            mode: payment.mode,
+            note: payment.note || "",
+          });
+        }
       }
 
       return Array.from(grouped.values()).slice(0, 30);

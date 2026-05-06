@@ -470,7 +470,7 @@ export function DeliveryOperationsPanel({
               )}
             >
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                
+
                 {/* User Info */}
                 <div className="flex items-center gap-4 min-w-0 md:w-[35%]">
                   <div className={cn(
@@ -491,8 +491,8 @@ export function DeliveryOperationsPanel({
                       <span className={cn(
                         "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter shrink-0",
                         isDelivered ? "bg-[#d1fae5] text-[#047857]" :
-                        isSkipped ? "bg-[#ffe4e6] text-[#be123c]" :
-                        isPaused ? "bg-[#fef3c7] text-[#b45309]" : "bg-gray-100 text-gray-600"
+                          isSkipped ? "bg-[#ffe4e6] text-[#be123c]" :
+                            isPaused ? "bg-[#fef3c7] text-[#b45309]" : "bg-gray-100 text-gray-600"
                       )}>
                         {task.status}
                       </span>
@@ -616,7 +616,7 @@ export function DeliveryOperationsPanel({
                   </div>
                 </div>
               </div>
-              
+
               {/* Mobile instruction view */}
               {task.deliveryInstruction && (
                 <div className="xl:hidden mt-3 pt-3 border-t border-gray-50">
@@ -645,13 +645,13 @@ export function DeliveryOperationsPanel({
               Loading locations...
             </div>
           )}
-          
+
           {locationError && (
             <div className="rounded-[16px] bg-rose-50 px-5 py-4 text-sm font-bold text-rose-600">
               {locationError}
             </div>
           )}
-          
+
           <button
             type="button"
             className="flex items-center justify-between px-5 py-4 rounded-[16px] bg-white border border-gray-100 hover:bg-gray-50 text-left text-sm font-black text-gray-700 transition-colors group"

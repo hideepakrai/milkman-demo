@@ -229,70 +229,65 @@ export default async function AdminDashboardPage({
           </div>
 
           {/* Premium Time Tracker Card */}
-          <div className="tracker-card bg-gradient-to-br from-[#064e3b] via-[#053e2f] to-[#021f16] rounded-[32px] p-8 text-white relative overflow-hidden flex flex-col justify-between shadow-2xl shadow-green-900/30 min-h-[380px] border border-white/10 group">
+          <div className="tracker-card bg-gradient-to-br from-[#064e3b] via-[#053e2f] to-[#021f16] rounded-[28px] p-6 text-white relative overflow-hidden flex flex-col gap-5 shadow-2xl shadow-green-900/30 border border-white/10 group">
 
-            {/* Dynamic Animated Background Glows */}
-            <div className="absolute -top-24 -right-24 w-96 h-96 bg-green-400/10 rounded-full blur-3xl group-hover:bg-green-400/20 transition-all duration-700" />
-            <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-700" />
+            {/* Ambient glows */}
+            <div className="absolute -top-20 -right-20 w-72 h-72 bg-green-400/10 rounded-full blur-3xl group-hover:bg-green-400/20 transition-all duration-700 pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-700 pointer-events-none" />
 
-            <div className="relative z-10 flex-1 flex flex-col">
-              {/* Header with Pulsing Live Dot */}
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-2.5">
-                  <div className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border-2 border-[#064e3b]"></span>
-                  </div>
-                  <h3 className="uppercase text-xs font-black tracking-[0.2em] text-green-300">
-                    {t("performance.title")}
-                  </h3>
+            {/* Header */}
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border-2 border-[#064e3b]"></span>
                 </div>
-                <div className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/10 shadow-sm">
-                  <span className="text-[10px] font-bold text-white uppercase tracking-widest">Shift 1</span>
-                </div>
+                <h3 className="uppercase text-xs font-black tracking-[0.2em] text-green-300">
+                  {t("performance.title")}
+                </h3>
               </div>
+              <div className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/10 shadow-sm">
+                <span className="text-[10px] font-bold text-white uppercase tracking-widest">Shift 1</span>
+              </div>
+            </div>
 
-              {/* Live Digital Clock */}
+            {/* Live Clock */}
+            <div className="relative z-10">
               <LiveClock />
+            </div>
 
-              {/* Premium Control Bar */}
-              <div className="flex items-center gap-4 mt-auto mb-10">
-                <button className="flex-1 flex justify-center items-center gap-2 py-4 rounded-[18px] bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 transition-all text-white text-sm font-black shadow-[0_8px_20px_rgba(225,29,72,0.3)] hover:shadow-[0_10px_25px_rgba(225,29,72,0.4)] transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95">
-                  <Square size={16} fill="currentColor" /> Stop Run
-                </button>
+            {/* Controls */}
+            <div className="relative z-10 flex items-center gap-3">
+              <button className="flex-1 flex justify-center items-center gap-2 py-3.5 rounded-[16px] bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 transition-all text-white text-sm font-black shadow-[0_6px_16px_rgba(225,29,72,0.3)] hover:shadow-[0_8px_20px_rgba(225,29,72,0.4)] transform hover:-translate-y-0.5 active:scale-95">
+                <Square size={14} fill="currentColor" /> Stop Run
+              </button>
+              <button className="w-12 h-12 shrink-0 flex items-center justify-center rounded-[16px] bg-white/10 hover:bg-white/20 transition-all text-white backdrop-blur-md border border-white/10 hover:border-white/20 transform hover:-translate-y-0.5 active:scale-95 shadow-lg">
+                <Plus size={20} strokeWidth={2.5} />
+              </button>
+            </div>
 
-                <button className="w-[52px] h-[52px] shrink-0 flex items-center justify-center rounded-[18px] bg-white/10 hover:bg-white/20 transition-all text-white backdrop-blur-md border border-white/10 hover:border-white/20 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95 shadow-lg">
-                  <Plus size={24} strokeWidth={2.5} />
-                </button>
+            {/* Active Task glass card */}
+            <div className="relative z-10 bg-black/20 backdrop-blur-xl rounded-[20px] p-5 border border-white/10 shadow-xl">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-green-400 block mb-0.5">Active Task</span>
+                  <p className="text-[14px] font-bold text-white tracking-tight">Morning delivery run</p>
+                </div>
+                <div className="px-3 py-1.5 bg-green-500/20 rounded-xl border border-green-500/30">
+                  <span className="text-xs font-black text-green-300">65%</span>
+                </div>
+              </div>
+              <div className="h-2.5 w-full bg-black/40 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                <div
+                  className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(52,211,153,0.5)]"
+                  style={{ width: '65%' }}
+                />
               </div>
             </div>
 
-            {/* Elevated Active Task Glass Container */}
-            <div className="relative z-10 bg-black/20 backdrop-blur-xl rounded-[24px] p-6 border border-white/10 shadow-2xl transform transition-transform group-hover:scale-[1.02] duration-500">
-              <div className="flex flex-col gap-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-green-400 mb-1 block drop-shadow-md">Active Task</span>
-                    <p className="text-[15px] font-bold text-white tracking-tight">Morning delivery run</p>
-                  </div>
-                  <div className="px-3 py-1.5 bg-green-500/20 rounded-xl border border-green-500/30 backdrop-blur-sm">
-                    <span className="text-xs font-black text-green-300">65%</span>
-                  </div>
-                </div>
-
-                {/* Thicker Glowing Progress Bar */}
-                <div className="h-3 w-full bg-black/40 rounded-full overflow-hidden border border-white/5 shadow-inner relative p-[2px]">
-                  <div
-                    className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full transition-all duration-1000 ease-out shadow-[0_0_12px_rgba(52,211,153,0.5)]"
-                    style={{ width: '65%' }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Decorative Ambient Icon */}
-            <div className="absolute right-[-10%] bottom-[-5%] opacity-[0.03] pointer-events-none transform -rotate-12 group-hover:rotate-0 transition-transform duration-1000 ease-out">
-              <Gauge size={300} strokeWidth={1} />
+            {/* Decorative icon */}
+            <div className="absolute right-[-8%] bottom-[-4%] opacity-[0.03] pointer-events-none -rotate-12 group-hover:rotate-0 transition-transform duration-1000">
+              <Gauge size={240} strokeWidth={1} />
             </div>
           </div>
         </div>
@@ -300,89 +295,97 @@ export default async function AdminDashboardPage({
     </AdminShell>
   );
 }
+
 const customStyles = `
-  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  
+  /* ── Stat cards row ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  /* ── Individual stat card ── */
+  .stat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #f3f4f6;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .stat-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+  }
+
+  .stat-card .blob {
+    position: absolute;
+    right: -20px;
+    top: -20px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    filter: blur(16px);
+  }
+
+  .stat-lbl {
+    font-size: 10px;
+    font-weight: 800;
+    color: #9CA3AF;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .stat-val {
+    font-size: 26px;
+    font-weight: 900;
+    color: #111827;
+    line-height: 1;
+    margin-bottom: 10px;
+    letter-spacing: -0.03em;
+  }
+
+  .stat-pill {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+
+  /* ── Grid rows ── */
+  .mid-row    { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: 12px; }
+  .bottom-row { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
+
+  /* ── Pill colours ── */
+  .pill-green { background: #f0fdf4; color: #15803d; }
+  .pill-blue  { background: #eff6ff; color: #1d4ed8; }
+  .pill-amber { background: #fffbeb; color: #b45309; }
+  .pill-red   { background: #fef2f2; color: #b91c1c; }
+
+  /* ── Responsive breakpoints ── */
+  @media (max-width: 1200px) {
+    .mid-row { grid-template-columns: 1fr 1fr; }
+  }
   @media (max-width: 768px) {
-    .stats-row { 
+    .stats-row {
       display: flex;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       gap: 10px;
       padding-bottom: 8px;
-      margin: 0 -16px;
-      padding-left: 16px;
-      padding-right: 16px;
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
     .stats-row::-webkit-scrollbar { display: none; }
     .stat-card {
-      min-width: 200px;
+      min-width: 160px;
       flex-shrink: 0;
       scroll-snap-align: start;
-
-  .stat-card { 
-    background: white; 
-    border-radius: 20px;
-    padding: 16px;
-    position: relative; 
-    overflow: hidden; 
-    border: 1px solid #f3f4f6;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-    min-width: 140px;
-    scroll-snap-align: start;
-    flex-shrink: 0;
-  }
-
-  .stat-card .blob { 
-    position: absolute; 
-    right: -20px; 
-    top: -20px; 
-    width: 80px; 
-    height: 80px; 
-    border-radius: 50%; 
-    filter: blur(16px);
-  }
-
-  .stat-lbl { 
-    font-size: 9px; 
-    font-weight: 800; 
-    color: #9CA3AF; 
-    margin-bottom: 6px; 
-    text-transform: uppercase; 
-    letter-spacing: 0.05em; 
-  }
-
-  .stat-val { 
-    font-size: 22px; 
-    font-weight: 900; 
-    color: #111827; 
-    line-height: 1; 
-    margin-bottom: 8px; 
-    letter-spacing: -0.02em; 
-  }
-
-  .stat-pill { 
-    font-size: 9px; 
-    font-weight: 700; 
-    padding: 3px 8px; 
-    border-radius: 20px; 
-    display: inline-block; 
-  }
-  
-  .mid-row { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: 12px; }
-  .bottom-row { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
-
-  .pill-green { background: #f0fdf4; color: #15803d; }
-  .pill-blue { background: #eff6ff; color: #1d4ed8; }
-  .pill-amber { background: #fffbeb; color: #b45309; }
-  .pill-red { background: #fef2f2; color: #b91c1c; }
-
-  @media (max-width: 1200px) {
-    .mid-row { grid-template-columns: 1fr 1fr; }
-  }
-  @media (max-width: 768px) {
+    }
     .mid-row, .bottom-row { grid-template-columns: 1fr; }
   }
 `;

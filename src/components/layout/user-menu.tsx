@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { LogOut, User, Loader2, LogIn } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export function UserMenu({ locale }: { locale: string }) {
@@ -11,7 +11,10 @@ export function UserMenu({ locale }: { locale: string }) {
   const pathname = usePathname();
 
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Robust landing page check: /en, /hi, /pa, /en/, / or empty
   const isLandingPage = pathname === `/${locale}` || pathname === `/${locale}/` || pathname === "/" || pathname === "";

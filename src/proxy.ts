@@ -1,14 +1,10 @@
 import createMiddleware from "next-intl/middleware";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { verifyToken } from "./lib/auth";
 import { routing } from "./i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
 
 export default async function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  
   // 1. Run intl middleware first
   const response = intlMiddleware(request);
 
