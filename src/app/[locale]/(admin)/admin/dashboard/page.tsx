@@ -80,34 +80,42 @@ export default async function AdminDashboardPage({
 
   return (
     <AdminShell locale={locale} title={t("title")} subtitle={t("subtitle")}>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <AdminStatCard
-          label={t("stats.activeCustomers")}
-          value={String(kpis.activeCustomers)}
-          hint={t("stats.activeCustomersHint", { count: kpis.todayPending })}
-          icon={Users}
-        />
-        <AdminStatCard
-          label={t("stats.todaysDeliveries")}
-          value={String(kpis.todayDelivered)}
-          hint={t("stats.todaysDeliveriesHint", { count: kpis.todayPending })}
-          icon={Droplets}
-          tone="success"
-        />
-        <AdminStatCard
-          label={t("stats.monthlySales")}
-          value={formatCurrencyINR(kpis.monthlySales)}
-          hint={t("stats.monthlySalesHint")}
-          icon={BadgeIndianRupee}
-          tone="warning"
-        />
-        <AdminStatCard
-          label={t("stats.outstandingDues")}
-          value={formatCurrencyINR(kpis.monthlyDue)}
-          hint={t("stats.outstandingDuesHint", { count: followUpCount })}
-          icon={CircleAlert}
-          tone="danger"
-        />
+      <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 md:grid md:grid-cols-2 xl:grid-cols-4 custom-scrollbar">
+        <div className="min-w-[85vw] sm:min-w-0 shrink-0 snap-start">
+          <AdminStatCard
+            label={t("stats.activeCustomers")}
+            value={String(kpis.activeCustomers)}
+            hint={t("stats.activeCustomersHint", { count: kpis.todayPending })}
+            icon={Users}
+          />
+        </div>
+        <div className="min-w-[85vw] sm:min-w-0 shrink-0 snap-start">
+          <AdminStatCard
+            label={t("stats.todaysDeliveries")}
+            value={String(kpis.todayDelivered)}
+            hint={t("stats.todaysDeliveriesHint", { count: kpis.todayPending })}
+            icon={Droplets}
+            tone="success"
+          />
+        </div>
+        <div className="min-w-[85vw] sm:min-w-0 shrink-0 snap-start">
+          <AdminStatCard
+            label={t("stats.monthlySales")}
+            value={formatCurrencyINR(kpis.monthlySales)}
+            hint={t("stats.monthlySalesHint")}
+            icon={BadgeIndianRupee}
+            tone="warning"
+          />
+        </div>
+        <div className="min-w-[85vw] sm:min-w-0 shrink-0 snap-start">
+          <AdminStatCard
+            label={t("stats.outstandingDues")}
+            value={formatCurrencyINR(kpis.monthlyDue)}
+            hint={t("stats.outstandingDuesHint", { count: followUpCount })}
+            icon={CircleAlert}
+            tone="danger"
+          />
+        </div>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1.18fr_0.82fr]">

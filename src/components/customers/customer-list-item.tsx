@@ -58,7 +58,7 @@ export function CustomerListItem({
   return (
     <article
       className={cn(
-        "admin-panel rounded-[22px] px-4 py-4 transition relative group",
+        "admin-panel rounded-[22px] px-3 py-3 md:px-4 md:py-4 transition relative group",
         isMenuOpen ? "z-[60]" : "z-10",
         "hover:bg-white active:scale-[0.995]"
       )}
@@ -94,16 +94,16 @@ export function CustomerListItem({
 
         {/* 3. Due & Actions Section (Right) */}
         <div className="flex items-center justify-between sm:justify-end gap-3 pointer-events-auto sm:min-w-[200px]">
-          <div className="flex flex-col items-start mr-3">
+          <div className="flex flex-col items-start md:items-end mr-3">
             <p
               className={cn(
-                "text-[15px] font-black tracking-tight",
+                "text-[15px] font-black tracking-tight text-left md:text-right",
                 customer.due > 500 ? "text-[#e11d48]" : "text-[var(--admin-text)]"
               )}
             >
               {formatCurrencyINR(customer.due)}
             </p>
-            <p className="text-[10px] font-bold uppercase text-gray-400 mt-0.5">
+            <p className="text-[10px] font-bold uppercase text-gray-400 mt-0.5 text-left md:text-right">
               {tDue} <span className="mx-1 text-gray-300">•</span>
               <span className="text-gray-500 lowercase first-letter:uppercase">paid: {formatDateShort(customer.lastPaymentDate)}</span>
             </p>

@@ -43,7 +43,7 @@ export function CustomerList({ customers, areas, locale }: CustomerListProps) {
             <p className="mt-1 text-sm text-[var(--admin-muted)]">{t("listSubtitle")}</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <div className="admin-secondary-button w-full justify-start gap-3 px-4 py-3 sm:w-[280px]">
+            <div className="admin-secondary-button w-full justify-start gap-3 px-3 py-2 sm:px-4 sm:py-3 sm:w-[280px]">
               <Search className="h-4 w-4 text-[var(--admin-muted)]" />
               <span className="text-sm font-medium text-[var(--admin-muted)]">
                 {t("searchPlaceholder")}

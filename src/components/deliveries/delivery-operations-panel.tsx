@@ -329,8 +329,8 @@ export function DeliveryOperationsPanel({
         </AdminField>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-4">
-        <div className="bg-emerald-50/50 border border-emerald-100 rounded-[22px] px-4 py-4">
+      <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 sm:grid sm:grid-cols-4 custom-scrollbar">
+        <div className="min-w-[140px] w-[35vw] sm:w-auto shrink-0 snap-start bg-emerald-50/50 border border-emerald-100 rounded-[22px] px-3 py-3 sm:px-4 sm:py-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">D</p>
@@ -341,7 +341,7 @@ export function DeliveryOperationsPanel({
             </div>
           </div>
         </div>
-        <div className="bg-rose-50/50 border border-rose-100 rounded-[22px] px-4 py-4">
+        <div className="min-w-[140px] w-[35vw] sm:w-auto shrink-0 snap-start bg-rose-50/50 border border-rose-100 rounded-[22px] px-3 py-3 sm:px-4 sm:py-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-rose-600">S</p>
@@ -352,7 +352,7 @@ export function DeliveryOperationsPanel({
             </div>
           </div>
         </div>
-        <div className="bg-amber-50/50 border border-amber-100 rounded-[22px] px-4 py-4">
+        <div className="min-w-[140px] w-[35vw] sm:w-auto shrink-0 snap-start bg-amber-50/50 border border-amber-100 rounded-[22px] px-3 py-3 sm:px-4 sm:py-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-amber-600">P</p>
@@ -363,7 +363,7 @@ export function DeliveryOperationsPanel({
             </div>
           </div>
         </div>
-        <div className="bg-blue-50/50 border border-blue-100 rounded-[22px] px-4 py-4">
+        <div className="min-w-[140px] w-[35vw] sm:w-auto shrink-0 snap-start bg-blue-50/50 border border-blue-100 rounded-[22px] px-3 py-3 sm:px-4 sm:py-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-blue-600">Pending</p>
@@ -401,7 +401,7 @@ export function DeliveryOperationsPanel({
             <article
               key={task.customerCode}
               className={cn(
-                "admin-panel rounded-[24px] px-4 py-5 md:px-6 md:py-6 transition-all duration-300 border border-transparent",
+                "admin-panel rounded-[24px] px-3 py-4 md:px-6 md:py-6 transition-all duration-300 border border-transparent",
                 isDelivered ? "bg-[#f0fdf4] border-emerald-100/50" : "bg-white hover:border-gray-200",
                 !isPending && "opacity-95 shadow-sm"
               )}
@@ -451,7 +451,7 @@ export function DeliveryOperationsPanel({
                 </div>
 
                 {/* Controls Section (Right) */}
-                <div className="flex flex-col items-end gap-4 shrink-0">
+                <div className="flex flex-col items-end gap-3 shrink-0">
 
                   {/* Quantity Stepper */}
                   <div className="flex items-center bg-gray-50 rounded-full p-1 border border-gray-100 shadow-sm w-full md:w-auto justify-between md:justify-start">
@@ -460,21 +460,21 @@ export function DeliveryOperationsPanel({
                       onClick={() => handleQuantityChange(task.customerCode, -0.5)}
                       disabled={(task.actualQuantity || 0) <= 0}
                       className={cn(
-                        "flex h-9 w-9 items-center justify-center rounded-full bg-white text-gray-500 shadow-sm border border-gray-100 hover:text-rose-500 transition-colors active:scale-90",
+                        "flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-500 shadow-sm border border-gray-100 hover:text-rose-500 transition-colors active:scale-90",
                         (task.actualQuantity || 0) <= 0 && "opacity-30 cursor-not-allowed"
                       )}
                     >
                       <Minus className="h-3 w-3 stroke-[3]" />
                     </button>
                     <div className="px-4 min-w-[70px] text-center">
-                      <span className="text-base font-black text-[var(--admin-text)]">
+                      <span className="text-sm md:text-base font-black text-[var(--admin-text)]">
                         {(task.actualQuantity || 0).toFixed(1)}L
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleQuantityChange(task.customerCode, 0.5)}
-                      className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-gray-500 shadow-sm border border-gray-100 hover:text-emerald-500 transition-colors active:scale-90"
+                      className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-500 shadow-sm border border-gray-100 hover:text-emerald-500 transition-colors active:scale-90"
                     >
                       <Plus className="h-3 w-3 stroke-[3]" />
                     </button>
@@ -487,7 +487,7 @@ export function DeliveryOperationsPanel({
                       onClick={() => saveStatus(task.customerCode, isDelivered ? "RESET" : "DELIVERED", task.status)}
                       disabled={loadingKey !== null}
                       className={cn(
-                        "flex-1 md:flex-none flex items-center justify-center gap-1.5 h-11 px-4 rounded-xl font-bold transition-all active:scale-95",
+                        "flex-1 md:flex-none flex items-center justify-center gap-1.5 h-10 px-3 md:h-11 md:px-4 rounded-xl font-bold transition-all active:scale-95",
                         isDelivered
                           ? "bg-emerald-600 text-white shadow-lg shadow-emerald-100"
                           : cn(
@@ -509,7 +509,7 @@ export function DeliveryOperationsPanel({
                       onClick={() => saveStatus(task.customerCode, isSkipped ? "RESET" : "SKIPPED", task.status)}
                       disabled={loadingKey !== null}
                       className={cn(
-                        "flex-1 md:flex-none flex items-center justify-center gap-1.5 h-11 px-4 rounded-xl font-bold transition-all active:scale-95",
+                        "flex-1 md:flex-none flex items-center justify-center gap-1.5 h-10 px-3 md:h-11 md:px-4 rounded-xl font-bold transition-all active:scale-95",
                         isSkipped
                           ? "bg-rose-600 text-white shadow-lg shadow-rose-100"
                           : cn(
@@ -531,7 +531,7 @@ export function DeliveryOperationsPanel({
                       onClick={() => saveStatus(task.customerCode, isPaused ? "RESET" : "PAUSED", task.status)}
                       disabled={loadingKey !== null}
                       className={cn(
-                        "flex-1 md:flex-none flex items-center justify-center gap-1.5 h-11 px-4 rounded-xl font-bold transition-all active:scale-95",
+                        "flex-1 md:flex-none flex items-center justify-center gap-1.5 h-10 px-3 md:h-11 md:px-4 rounded-xl font-bold transition-all active:scale-95",
                         isPaused
                           ? "bg-amber-500 text-white shadow-lg shadow-amber-100"
                           : cn(
