@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import {
   Building2,
@@ -131,13 +130,6 @@ export default async function CustomerProfilePage({
             </div>
           </article>
 
-          {/* Sign out */}
-          <div className="mt-4">
-            <Link href={`/${locale}`} className="btn btn-ghost btn-block flex items-center justify-center gap-2">
-              <LogOut className="h-4 w-4" />
-              {t("profile.signOut")}
-            </Link>
-          </div>
         </>
       ) : (
         <section className="card">
