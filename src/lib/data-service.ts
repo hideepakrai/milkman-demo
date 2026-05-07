@@ -350,7 +350,7 @@ function buildCustomerEntities(base: Awaited<ReturnType<typeof getBaseData>>) {
     const advanceAmount = Math.max(paidAmount - totalAmount, 0);
     const deliveredDays = billableDays;
 
-    const lastPayment = payments.length > 0 
+    const lastPayment = payments.length > 0
       ? [...payments].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
       : null;
 
@@ -690,7 +690,7 @@ export async function getBillingData() {
         }>;
       }
       const grouped = new Map<string, GroupedPayment>();
-      
+
       for (const payment of base.paymentsMonth) {
         const customerId = String(payment.customerId);
         const date = new Date(payment.date);
@@ -873,10 +873,10 @@ export async function getCustomerMonthlyCalendar(customerCode: string, month: nu
     const dayNum = index + 1;
     const dayDate = new Date(year, month - 1, dayNum);
     const dayKey = `${year}-${String(month).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
-    
+
     const exception = exceptions.find(ex => toDate(ex.date)?.toDateString() === dayDate.toDateString());
     const delivery = deliveries.find(d => toDate(d.date)?.toDateString() === dayDate.toDateString());
-    
+
     let status: CalendarStatus = "PENDING";
     if (exception) {
       status = exception.type === "PAUSE" ? "PAUSED" : "SKIPPED";
@@ -1198,7 +1198,7 @@ export async function getCustomerByUserId(userId: string) {
     // Last resort: Build a minimal detail object for a new customer
     const user = await User.findById(userId).lean<PlainUser | null>();
     const plan = await MilkPlan.findOne({ customerId: profile._id, isActive: true }).lean<PlainMilkPlan | null>();
-    
+
     return {
       id: String(profile._id),
       customerCode: profile.customerCode,
