@@ -10,7 +10,7 @@ import { User } from "@/models/user";
 const customerSchema = z.object({
   name: z.string().trim().min(2),
   phone: z.string().trim().min(8),
-  preferredLanguage: z.enum(["en", "hi"]).optional(),
+  preferredLanguage: z.enum(["en", "hi", "pa"]).optional(),
   addressLine1: z.string().trim().min(3),
   addressLine2: z.string().trim().optional(),
   areaCode: z.string().trim().min(1),
@@ -24,13 +24,29 @@ const customerSchema = z.object({
   status: z.enum(["ACTIVE", "INACTIVE", "PAUSED"]).optional(),
 });
 
+type CustomerProfileRecord = {
+  _id: string;
+  userId: string;
+  customerCode: string;
+  addressLine1: string;
+  addressLine2?: string;
+  areaCode: string;
+  areaName?: string;
+  area?: string;
+  landmark?: string;
+  notes?: string;
+  deliveryInstruction?: string;
+  isActive?: boolean;
+  save: () => Promise<void>;
+};
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ customerCode: string }> }
 ) {
   await connectToDatabase();
   const { customerCode } = await params;
-  const profile: any = await CustomerProfile.findOne({ customerCode }).lean();
+  const profile = await CustomerProfile.findOne({ customerCode }).lean<CustomerProfileRecord | null>();
 
   if (!profile) {
     return NextResponse.json({ error: "Customer not found" }, { status: 404 });
@@ -96,7 +112,6 @@ export async function PUT(
     profile.addressLine2 = payload.addressLine2 || "";
     profile.areaCode = area.code;
     profile.areaName = area.name;
-    profile.area = area.name;
     profile.landmark = payload.landmark || "";
     profile.notes = payload.notes || "";
     profile.deliveryInstruction = payload.deliveryInstruction || "";

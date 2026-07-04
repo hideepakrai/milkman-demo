@@ -20,7 +20,7 @@ type CustomerFormProps = {
   initialValues?: {
     name: string;
     phone: string;
-    preferredLanguage: "en" | "hi";
+    preferredLanguage: "en" | "hi" | "pa";
     addressLine1: string;
     addressLine2: string;
     areaCode: string;
@@ -84,7 +84,10 @@ export function CustomerForm({
 
     try {
       const { internalNote, ...rest } = form;
-      const payload: any = {
+      const payload: {
+        [key: string]: string | number | undefined;
+        notes?: string;
+      } = {
         ...rest,
         quantityLiters: Number(form.quantityLiters),
         pricePerLiter: Number(form.pricePerLiter),
@@ -149,7 +152,7 @@ export function CustomerForm({
               onChange={(event) =>
                 setForm((current) => ({
                   ...current,
-                  preferredLanguage: event.target.value as "en" | "hi",
+                  preferredLanguage: event.target.value as "en" | "hi" | "pa",
                 }))
               }
             >

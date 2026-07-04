@@ -78,6 +78,8 @@ type PlainDelivery = {
   note?: string;
 };
 
+type PlainDeliveryRecord = PlainDelivery;
+
 type DeliveryAddOnItem = {
   productCode?: string;
   productName?: string;
@@ -208,47 +210,101 @@ function mapById<T extends { _id: string }>(items: T[]) {
 async function getVendorMilkSummaryMap() {
   await connectToDatabase();
 
-  const results = await MilkEntry.aggregate<VendorSummaryAggregate>([
-    {
-      $sort: { date: -1, createdAt: -1 },
-    },
-    {
-      $group: {
-        _id: "$vendorCode",
-        entryCount: { $sum: 1 },
-        totalMilkInward: { $sum: "$quantity" },
-        totalAmount: { $sum: "$total" },
-        totalPaid: {
-          $sum: {
-            $cond: [{ $eq: ["$status", "PAID"] }, "$total", 0],
-          },
-        },
-        totalUnpaid: {
-          $sum: {
-            $cond: [{ $eq: ["$status", "UNPAID"] }, "$total", 0],
-          },
-        },
-        unpaidEntries: {
-          $sum: {
-            $cond: [{ $eq: ["$status", "UNPAID"] }, 1, 0],
-          },
-        },
-        averageSupply: { $avg: "$quantity" },
-        lastPurchaseDate: { $first: "$date" },
-        lastQuantity: { $first: "$quantity" },
-        lastRate: { $first: "$rate" },
+  const [milkResults, purchaseResults] = await Promise.all([
+    MilkEntry.aggregate<VendorSummaryAggregate>([
+      {
+        $sort: { date: -1, createdAt: -1 },
       },
-    },
+      {
+        $group: {
+          _id: "$vendorCode",
+          entryCount: { $sum: 1 },
+          totalMilkInward: { $sum: "$quantity" },
+          totalAmount: { $sum: "$total" },
+          totalPaid: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "PAID"] }, "$total", 0],
+            },
+          },
+          totalUnpaid: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "UNPAID"] }, "$total", 0],
+            },
+          },
+          unpaidEntries: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "UNPAID"] }, 1, 0],
+            },
+          },
+          averageSupply: { $avg: "$quantity" },
+          lastPurchaseDate: { $first: "$date" },
+          lastQuantity: { $first: "$quantity" },
+          lastRate: { $first: "$rate" },
+        },
+      },
+    ]),
+    PurchaseEntry.aggregate<VendorSummaryAggregate>([
+      {
+        $sort: { date: -1, createdAt: -1 },
+      },
+      {
+        $group: {
+          _id: "$vendorCode",
+          entryCount: { $sum: 1 },
+          totalAmount: { $sum: "$totalAmount" },
+          totalPaid: {
+            $sum: {
+              $cond: [{ $eq: ["$paymentStatus", "PAID"] }, "$totalAmount", 0],
+            },
+          },
+          totalUnpaid: {
+            $sum: {
+              $cond: [{ $ne: ["$paymentStatus", "PAID"] }, "$totalAmount", 0],
+            },
+          },
+          unpaidEntries: {
+            $sum: {
+              $cond: [{ $ne: ["$paymentStatus", "PAID"] }, 1, 0],
+            },
+          },
+          lastPurchaseDate: { $first: "$date" },
+          lastQuantity: { $first: "$quantity" },
+          lastRate: { $first: "$rate" },
+        },
+      },
+    ]),
   ]);
 
-  return new Map(results.map((item) => [String(item._id), item]));
+  // Merge purchase data into milk summary map
+  const milkMap = new Map(milkResults.map((item) => [String(item._id), item]));
+
+  for (const purchase of purchaseResults) {
+    const key = String(purchase._id);
+    const existing = milkMap.get(key);
+
+    if (existing) {
+      existing.entryCount += purchase.entryCount;
+      existing.totalAmount += purchase.totalAmount;
+      existing.totalPaid += purchase.totalPaid;
+      existing.totalUnpaid += purchase.totalUnpaid;
+      existing.unpaidEntries += purchase.unpaidEntries;
+      // Keep the most recent date from either source
+      if (purchase.lastPurchaseDate && (!existing.lastPurchaseDate || purchase.lastPurchaseDate > existing.lastPurchaseDate)) {
+        existing.lastPurchaseDate = purchase.lastPurchaseDate;
+      }
+    } else {
+      milkMap.set(key, { ...purchase, totalMilkInward: 0, averageSupply: 0 });
+    }
+  }
+
+  return milkMap;
 }
 
 async function getReferenceDate() {
   await connectToDatabase();
 
   const [latestDelivery, latestPayment, latestPurchase, latestMilkEntry] = await Promise.all([
-    DeliveryException.findOne().sort({ date: -1 }).lean<PlainDeliveryException | null>(),
+    Delivery.findOne().sort({ date: -1 }).lean<PlainDelivery | null>(),
     Payment.findOne().sort({ date: -1 }).lean<PlainPayment | null>(),
     PurchaseEntry.findOne().sort({ date: -1 }).lean<PlainPurchase | null>(),
     MilkEntry.findOne().sort({ date: -1 }).lean<PlainMilkEntry | null>(),
@@ -281,7 +337,7 @@ const getBaseData = cache(async () => {
       MilkPlan.find({ isActive: true }).sort({ startDate: -1 }).lean<PlainMilkPlan[]>(),
       DeliveryException.find({ date: { $gte: monthStart, $lte: monthEnd } }).sort({ date: -1 }).lean<PlainDeliveryException[]>(),
       DeliveryException.find({ date: { $gte: todayStart, $lte: todayEnd } }).lean<PlainDeliveryException[]>(),
-      Delivery.find({ date: { $gte: todayStart, $lte: todayEnd } }).lean<any[]>(),
+      Delivery.find({ date: { $gte: todayStart, $lte: todayEnd } }).lean<PlainDeliveryRecord[]>(),
       Payment.find({ date: { $gte: monthStart, $lte: monthEnd } }).sort({ date: -1 }).lean<PlainPayment[]>(),
       Product.find().sort({ sortOrder: 1, name: 1 }).lean<PlainProduct[]>(),
       Vendor.find().sort({ sortOrder: 1, name: 1 }).lean<PlainVendor[]>(),
@@ -481,6 +537,7 @@ export async function getCustomerDetailData(identifier: string) {
     return null;
   }
 
+  // getBaseData() uses React cache() so repeated calls are free within the same request
   const base = await getBaseData();
   const entity = buildCustomerEntities(base).find(
     (entry) => entry.profile.customerCode === identifier || String(entry.profile._id) === identifier,
@@ -556,12 +613,11 @@ export async function getDashboardData() {
           : entry.todayException?.type === "PAUSE"
             ? "Delivery paused"
             : "Delivery skipped",
-      tone:
-        entry.totals.dueAmount > 0
-          ? "danger"
-          : entry.todayException?.type === "PAUSE"
-            ? "warning"
-            : "blue",
+      tone: (entry.totals.dueAmount > 0
+        ? "danger"
+        : entry.todayException?.type === "PAUSE"
+          ? "warning"
+          : "blue") as "blue" | "success" | "warning" | "danger",
     }));
 
   return {
@@ -675,7 +731,23 @@ export async function getBillingData() {
     },
     customers,
     recentPayments: (() => {
-      const grouped = new Map<string, any>();
+      type RecentPaymentGroup = {
+        customerId: string;
+        customerCode: string;
+        customerName: string;
+        date: Date;
+        dateLabel: string;
+        totalAmount: number;
+        transactions: Array<{
+          id: string;
+          amount: number;
+          mode: string;
+          date: Date | string;
+          note: string;
+        }>;
+      };
+
+      const grouped = new Map<string, RecentPaymentGroup>();
       
       for (const payment of base.paymentsMonth) {
         const customerId = String(payment.customerId);
@@ -693,18 +765,30 @@ export async function getBillingData() {
             customerCode: customer?.customerCode || "",
             customerName: customer?.name || "Unknown",
             date,
-            dateLabel: formatDateLabel(payment.date),
+            dateLabel: new Intl.DateTimeFormat("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+              timeZone: "Asia/Kolkata"
+            }).format(new Date(payment.date)),
             totalAmount: 0,
             transactions: [],
           });
         }
 
         const group = grouped.get(groupKey);
+        if (!group) {
+          continue;
+        }
         group.totalAmount += payment.amount;
         group.transactions.push({
           id: String(payment._id),
           amount: payment.amount,
           mode: payment.mode,
+          date: payment.date,
           note: payment.note || "",
         });
       }
@@ -1159,6 +1243,7 @@ export async function getDeliveryOperationOptions() {
     products: products.filter((product) => product.isActive !== false),
   };
 }
+
 export async function getCustomerByUserId(userId: string) {
   const base = await getBaseData();
   const entity = buildCustomerEntities(base).find(
@@ -1173,9 +1258,6 @@ export async function getCustomerByUserId(userId: string) {
   await connectToDatabase();
   const profile = await CustomerProfile.findOne({ userId }).lean<PlainCustomerProfile | null>();
   if (profile) {
-    // If we found it directly, we should still return the full detail.
-    // getCustomerDetailData will fetch getCustomerListData which might still be stale.
-    // So we'll try to return a minimal valid object if it's really new.
     const detail = await getCustomerDetailData(profile.customerCode);
     if (detail) return detail;
 
