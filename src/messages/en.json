@@ -49,6 +49,11 @@
     "description": "Enter your mobile number to access your account instantly.",
     "mobile": "Mobile number",
     "mobilePlaceholder": "10-digit number",
+    "pinLabel": "4-digit PIN",
+    "pinPlaceholder": "Enter your 4-digit PIN",
+    "pinHint": "Enter the 4-digit PIN provided by your milkman",
+    "showPin": "Show PIN",
+    "hidePin": "Hide PIN",
     "submit": "Login"
   },
   "home": {

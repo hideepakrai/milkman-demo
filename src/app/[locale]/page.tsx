@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import {
@@ -174,10 +175,13 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
 
                 {/* Main image */}
                 <div className="relative z-10 w-72 h-72 sm:w-80 sm:h-80 lg:w-96 lg:h-96 animate-float">
-                  <img
+                  <Image
                     src="/milk-hero.png"
                     alt="Fresh Premium Milk"
+                    width={384}
+                    height={384}
                     className="w-full h-full object-contain drop-shadow-2xl"
+                    priority
                   />
                 </div>
 

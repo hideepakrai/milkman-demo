@@ -1,8 +1,7 @@
 import { CalendarRange, CircleDollarSign, Droplets, Users } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { MonthGrid } from "@/components/calendar/month-grid";
 import { AdminShell } from "@/components/layout/admin-shell";
-import { AdminBadge, AdminCard, AdminStatCard } from "@/components/layout/admin-ui";
+import { AdminCard, AdminStatCard } from "@/components/layout/admin-ui";
 import { getAdminCalendarData, getAreasData } from "@/lib/data-service";
 import { formatCurrencyINR } from "@/lib/utils";
 import { InteractiveCalendar } from "./interactive-calendar";

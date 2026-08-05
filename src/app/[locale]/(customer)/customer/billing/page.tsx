@@ -1,10 +1,9 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { redirect } from "next/navigation";
 import { CircleDollarSign, ReceiptIndianRupee, Wallet } from "lucide-react";
 import { CustomerShell } from "@/components/layout/customer-shell";
-import {
-  getCustomerDetailData,
-  getDefaultCustomerCode,
-} from "@/lib/data-service";
+import { getCustomerDetailData, getCustomerByUserId } from "@/lib/data-service";
+import { getCurrentUser } from "@/lib/auth";
 import { formatCurrencyINR } from "@/lib/utils";
 
 type CustomerBillingPageProps = {
@@ -18,7 +17,12 @@ export default async function CustomerBillingPage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale });
 
-  const customerCode = await getDefaultCustomerCode();
+  const user = await getCurrentUser();
+  if (!user || user.role !== "CUSTOMER") {
+    redirect(`/${locale}/login`);
+  }
+  const linkedCustomer = await getCustomerByUserId(user.id);
+  const customerCode = linkedCustomer?.customerCode ?? null;
   const customer = customerCode ? await getCustomerDetailData(customerCode) : null;
 
   const rows = customer

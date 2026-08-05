@@ -20,6 +20,8 @@ import {
   AdminSelect,
 } from "@/components/layout/admin-ui";
 import { formatCurrencyINR } from "@/lib/utils";
+import { useAppDispatch } from "@/store/hooks";
+import { createMilkEntry, fetchMilkLedger } from "@/store/slices/milkEntry/milkEntryThunks";
 
 type VendorRecord = {
   _id: string;
@@ -121,6 +123,7 @@ function getStartingVendorForm(
 
 export function VendorManagementPanel({ initialVendors, areas, locale }: VendorManagementPanelProps) {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const entryQuantityRef = useRef<HTMLInputElement>(null);
   const [vendors, setVendors] = useState(initialVendors);
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
@@ -147,10 +150,12 @@ export function VendorManagementPanel({ initialVendors, areas, locale }: VendorM
   const [isSavingVendor, setIsSavingVendor] = useState(false);
   const [isSavingEntry, setIsSavingEntry] = useState(false);
   const [isLoadingLedger, setIsLoadingLedger] = useState(false);
+  const [prevInitialVendors, setPrevInitialVendors] = useState(initialVendors);
 
-  useEffect(() => {
+  if (initialVendors !== prevInitialVendors) {
+    setPrevInitialVendors(initialVendors);
     setVendors(initialVendors);
-  }, [initialVendors]);
+  }
 
   useEffect(() => {
     if (!entryVendorCode) {
@@ -299,22 +304,13 @@ export function VendorManagementPanel({ initialVendors, areas, locale }: VendorM
     setEntryError("");
 
     try {
-      const response = await fetch("/api/milk-entries", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          vendorCode: activeEntryVendor.code,
-          date: entryForm.date,
-          quantity: Number(entryForm.quantity || 0),
-          rate: Number(entryForm.rate || 0),
-          status: entryForm.status,
-        }),
-      });
-      const data = (await response.json()) as { error?: string };
-
-      if (!response.ok) {
-        throw new Error(data.error || "Unable to save milk entry");
-      }
+      await dispatch(createMilkEntry({
+        vendorCode: activeEntryVendor.code,
+        date: entryForm.date,
+        quantity: Number(entryForm.quantity || 0),
+        rate: Number(entryForm.rate || 0),
+        status: entryForm.status,
+      })).unwrap();
 
       if (mode === "next") {
         const currentIndex = visibleVendorCodes.indexOf(activeEntryVendor.code);
@@ -350,33 +346,8 @@ export function VendorManagementPanel({ initialVendors, areas, locale }: VendorM
     setLedgerError("");
 
     try {
-      const searchParams = new URLSearchParams({ vendorCode });
-
-      if (dateFrom) {
-        searchParams.set("dateFrom", dateFrom);
-      }
-
-      if (dateTo) {
-        searchParams.set("dateTo", dateTo);
-      }
-
-      const response = await fetch(`/api/milk-entries?${searchParams.toString()}`);
-      const data = (await response.json()) as {
-        error?: string;
-        entries?: MilkLedgerEntry[];
-        summary?: {
-          totalMilk: number;
-          totalAmount: number;
-          totalUnpaid: number;
-        };
-      };
-
-      if (!response.ok) {
-        throw new Error(data.error || "Unable to load ledger");
-      }
-
-      const entries = data.entries || [];
-      setLedgerEntries(entries);
+      const data = await dispatch(fetchMilkLedger({ vendorCode, dateFrom, dateTo })).unwrap();
+      setLedgerEntries(data.entries || []);
       setLedgerSummary(
         data.summary || {
           totalMilk: 0,

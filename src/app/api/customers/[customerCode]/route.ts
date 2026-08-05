@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { connectToDatabase } from "@/lib/db/connect";
+import { getCustomerDetailData } from "@/lib/data-service";
 import { Area } from "@/models/area";
 import { CustomerProfile } from "@/models/customer-profile";
 import { DeliveryException } from "@/models/delivery-exception";
@@ -52,20 +53,25 @@ export async function GET(
     return NextResponse.json({ error: "Customer not found" }, { status: 404 });
   }
 
-  const [plan, exceptions] = await Promise.all([
+  const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const monthEnd = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0, 23, 59, 59, 999);
+
+  const [plan, exceptions, recentDeliveries] = await Promise.all([
     MilkPlan.findOne({ customerId: profile._id, isActive: true }).sort({ startDate: -1 }).lean(),
-    DeliveryException.find({ 
-      customerId: profile._id, 
-      date: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) } 
-    }).sort({ date: 1 }).limit(10).lean()
+    DeliveryException.find({
+      customerId: profile._id,
+      date: { $gte: monthStart, $lte: monthEnd },
+    }).sort({ date: 1 }).limit(10).lean(),
+    getCustomerDetailData(customerCode).then((detail) => detail?.recentDeliveries ?? []),
   ]);
 
-  return NextResponse.json({ 
+  return NextResponse.json({
     customer: {
       ...profile,
       plan,
-      exceptions
-    } 
+      exceptions,
+      recentDeliveries,
+    },
   });
 }
 

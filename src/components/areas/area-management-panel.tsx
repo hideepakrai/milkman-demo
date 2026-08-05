@@ -92,7 +92,7 @@ export function AreaManagementPanel() {
         setSelectedCode(null);
         setForm(emptyForm);
       }
-    } catch (err) {
+    } catch {
       // error is already in the Redux store via the slice
     } finally {
       setIsSubmitting(false);

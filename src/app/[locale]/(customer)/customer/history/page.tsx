@@ -1,7 +1,10 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { redirect } from "next/navigation";
 import { CheckCircle2, Clock, PauseCircle, XCircle } from "lucide-react";
 import { CustomerShell } from "@/components/layout/customer-shell";
 import { getCustomerHistoryData } from "@/lib/data-service";
+import { getCurrentUser } from "@/lib/auth";
+import { getCustomerByUserId } from "@/lib/data-service";
 
 type CustomerHistoryPageProps = {
   params: Promise<{ locale: string }>;
@@ -23,7 +26,15 @@ export default async function CustomerHistoryPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale });
-  const entries = await getCustomerHistoryData();
+
+  const user = await getCurrentUser();
+  if (!user || user.role !== "CUSTOMER") {
+    redirect(`/${locale}/login`);
+  }
+  const customer = await getCustomerByUserId(user.id);
+  const customerCode = customer?.customerCode ?? null;
+
+  const entries = await getCustomerHistoryData(customerCode);
 
   return (
     <CustomerShell locale={locale}>

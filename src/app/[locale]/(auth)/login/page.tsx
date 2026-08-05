@@ -15,20 +15,22 @@ export default function LoginPage() {
   const t = useTranslations("auth");
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((s) => s.auth);
-  const [phone, setPhone] = useState("9876543210");
-  const [pin, setPin] = useState("1234");
+  const [phone, setPhone] = useState("");
+  const [pin, setPin] = useState("");
   const [showPin, setShowPin] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     dispatch(clearAuthError());
-   debugger
-    const result = await dispatch(loginUser({ phone, pin })).unwrap();
-    console.log("userlogin", result);
-    if (result?.user?.role) {
-      const role = result.user.role;
-      const target = role === "CUSTOMER" ? "customer/dashboard" : "admin/dashboard";
-      router.push(`/${locale}/${target}`);
+    try {
+      const result = await dispatch(loginUser({ phone, pin })).unwrap();
+      if (result?.user?.role) {
+        const role = result.user.role;
+        const target = role === "CUSTOMER" ? "customer/dashboard" : "admin/dashboard";
+        router.push(`/${locale}/${target}`);
+      }
+    } catch {
+      // Login error is already stored in the Redux auth slice and shown above.
     }
   }
 
@@ -81,7 +83,7 @@ export default function LoginPage() {
           {/* PIN Input */}
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-[var(--ink-700)]" htmlFor="pin">
-              4-digit PIN
+              {t("pinLabel")}
             </label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--ink-300)]" />
@@ -93,7 +95,7 @@ export default function LoginPage() {
                 maxLength={4}
                 value={pin}
                 onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                placeholder="Enter your 4-digit PIN"
+                placeholder={t("pinPlaceholder")}
                 required
                 autoComplete="current-password"
                 className="w-full rounded-[18px] border border-[var(--border)] bg-[var(--surface)] py-4 pl-12 pr-12 text-sm text-[var(--ink-700)] outline-none transition placeholder:text-[var(--ink-300)] focus:border-[var(--brand)] focus:ring-4 focus:ring-[rgba(37,99,235,0.12)]"
@@ -103,13 +105,13 @@ export default function LoginPage() {
                 onClick={() => setShowPin(!showPin)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--ink-300)] hover:text-[var(--ink-500)] transition"
                 tabIndex={-1}
-                aria-label={showPin ? "Hide PIN" : "Show PIN"}
+                aria-label={showPin ? t("hidePin") : t("showPin")}
               >
                 {showPin ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
             <p className="text-[11px] text-[var(--ink-300)] mt-1">
-              Enter the 4-digit PIN provided by your milkman
+              {t("pinHint")}
             </p>
           </div>
 

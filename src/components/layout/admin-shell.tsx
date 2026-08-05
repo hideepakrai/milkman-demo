@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
   Building2,
@@ -66,23 +66,13 @@ const navItems: NavItem[] = [
   { href: "products", icon: Package2 },
 ];
 
-export function AdminShell({
-  children,
-  locale,
-  title,
-  subtitle,
-  hideHero,
-  search,
-}: AdminShellProps) {
+export function AdminShell({ children, locale, title }: AdminShellProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const tShell = useTranslations("admin.shell");
   const tNav = useTranslations("admin.nav");
 
-  const isDashboard = pathname === `/${locale}/admin/dashboard`;
-
-  const renderNavItem = ({ href, icon: Icon, labelKey, isLive }: NavItem) => {
+  const renderNavItem = ({ href, icon: Icon, labelKey }: NavItem) => {
     const target = `/${locale}/admin/${href}`;
     const isActive = pathname === target || pathname.startsWith(`${target}/`);
     const navKey = href === "reports/area-insights" ? "reports" : href;

@@ -13,11 +13,7 @@ type AdminModalProps = {
 };
 
 export function AdminModal({ isOpen, onClose, title, children, footer }: AdminModalProps) {
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [mounted] = React.useState(true);
 
   React.useEffect(() => {
     if (isOpen) {

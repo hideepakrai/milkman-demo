@@ -19,7 +19,7 @@ const localeLabels: Record<string, { short: string; full: string; native: string
  * - Collapsed state shows only the active language code.
  * - Opens a dropdown with full language names on click.
  */
-export function LanguageSwitcher({ locale: initialLocale }: { locale?: string }) {
+export function LanguageSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const locale = useLocale();

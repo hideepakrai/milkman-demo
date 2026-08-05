@@ -5,18 +5,12 @@ import { BarChart2, Eye, FilePenLine, MoreVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type CustomerCardActionsProps = {
-  id: string;
-  customerCode: string;
-  locale: string;
   onView?: (mode: "view" | "details" | "schedule" | "edit") => void;
   isMenuOpen?: boolean;
   setMenuOpen?: (isOpen: boolean) => void;
 };
 
 export function CustomerCardActions({
-  id,
-  customerCode,
-  locale,
   onView,
   isMenuOpen = false,
   setMenuOpen,

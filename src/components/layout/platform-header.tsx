@@ -44,7 +44,7 @@ export async function PlatformHeader({
         </span>
       </Link>
       <div className="flex items-center gap-3">
-        <LanguageSwitcher locale={locale} />
+        <LanguageSwitcher />
         <LogoutButton locale={locale} />
       </div>
     </header>

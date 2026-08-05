@@ -1,31 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { CreateCustomerPayload, CustomerRecord } from "./CustomerType";
 
-export type CustomerRecord = {
-  id: string;
-  customerCode: string;
-  name: string;
-  phone: string;
-  address: string;
-  areaCode: string;
-  status: "ACTIVE" | "PAUSED" | "INACTIVE";
-  areaName: string;
-  quantityLabel: string;
-  quantity: number;
-  rate: number;
-  due: number;
-  advance: number;
-  billed: number;
-  paid: number;
-  notes?: string;
-  deliveryInstruction?: string;
-  deliverySlot?: string;
-  deliveryStatus?: string | null;
-  extraQuantity?: number;
-  preferredLanguage?: "en" | "hi" | "pa";
-  addressLine1?: string;
-  addressLine2?: string;
-  landmark?: string;
-};
+
 
 export const fetchCustomers = createAsyncThunk(
   "customers/fetchCustomers",
@@ -36,6 +12,7 @@ export const fetchCustomers = createAsyncThunk(
       throw new Error(body.error ?? "Failed to fetch customers");
     }
     const data = await res.json();
+    console.log("get customers--",data)
     return data.customers as CustomerRecord[];
   }
 );
@@ -53,21 +30,7 @@ export const fetchCustomer = createAsyncThunk(
   }
 );
 
-export type CreateCustomerPayload = {
-  name: string;
-  phone: string;
-  preferredLanguage?: "en" | "hi" | "pa";
-  addressLine1: string;
-  addressLine2?: string;
-  areaCode: string;
-  landmark?: string;
-  notes?: string;
-  deliveryInstruction?: string;
-  quantityLiters: number;
-  pricePerLiter: number;
-  unitLabel?: string;
-  status?: "ACTIVE" | "PAUSED" | "INACTIVE";
-};
+
 
 export const createCustomer = createAsyncThunk(
   "customers/createCustomer",

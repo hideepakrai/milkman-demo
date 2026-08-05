@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { getCustomerByUserId, getCustomerMonthlyCalendar } from "@/lib/data-service";
-import { formatCurrencyINR } from "@/lib/utils";
 
 export async function GET() {
   try {

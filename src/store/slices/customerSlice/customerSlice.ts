@@ -1,12 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import {
-  fetchCustomers,
-  fetchCustomer,
-  createCustomer,
-  updateCustomer,
-  deleteCustomer,
-  type CustomerRecord,
-} from "./customerThunks";
+import { createCustomer, deleteCustomer, fetchCustomer, fetchCustomers, updateCustomer } from "./customerThunks";
+import { CustomerRecord } from "./CustomerType";
 
 type CustomersState = {
   listCustomer: CustomerRecord[];

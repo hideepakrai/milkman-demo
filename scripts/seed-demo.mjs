@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const cwd = process.cwd();
-const envPath = path.join(cwd, ".env.local");
 const areaDataPath = path.join(cwd, "src", "data", "areas.json");
 
 function loadEnvFile(filePath) {
@@ -113,7 +113,9 @@ function buildCustomerSeed(areaMaster) {
 }
 
 async function seedDemoData() {
-  loadEnvFile(envPath);
+  // Load both .env and .env.local (the repo ships credentials in .env)
+  loadEnvFile(path.join(cwd, ".env"));
+  loadEnvFile(path.join(cwd, ".env.local"));
 
   const mongoUri = process.env.MONGODB_URI;
   const dbName = process.env.MONGODB_DB_NAME || "milkman";
@@ -225,8 +227,12 @@ async function seedDemoData() {
     })),
   );
 
+  // Valid 10-digit admin phone so the login route accepts it (phone.length must be 10).
+  const adminPhone = "9876543210";
+  const adminPinHash = await bcrypt.hash("1234", 10);
+
   await users.updateOne(
-    { phone: "919876543210" },
+    { phone: adminPhone },
     {
       $set: {
         role: "SUPER_ADMIN",
@@ -235,9 +241,11 @@ async function seedDemoData() {
           hi: "मिल्कमैन ओनर",
           pa: "ਮਿਲਕਮੈਨ ਓਨਰ"
         },
-        phone: "919876543210",
+        phone: adminPhone,
         email: "owner@milkman.local",
         passwordHash: "seeded-super-admin",
+        pinHash: adminPinHash,
+        username: "superadmin",
         preferredLanguage: "en",
         status: "ACTIVE",
         updatedAt: new Date(),
@@ -250,6 +258,10 @@ async function seedDemoData() {
   );
 
   for (const customer of customerSeed) {
+    // Deterministic PIN = last 4 digits of the phone number (matches generate-pins.mjs)
+    const customerPin = String(customer.phone).slice(-4).padStart(4, "0");
+    const customerPinHash = await bcrypt.hash(customerPin, 10);
+
     await users.updateOne(
       { phone: customer.phone },
       {
@@ -262,6 +274,7 @@ async function seedDemoData() {
           },
           phone: customer.phone,
           passwordHash: "seeded-password",
+          pinHash: customerPinHash,
           preferredLanguage: customer.preferredLanguage,
           status: "ACTIVE",
           updatedAt: new Date(),

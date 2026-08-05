@@ -25,27 +25,19 @@ export function CustomerCalendarModal({
 }: CustomerCalendarModalProps) {
   const [month, setMonth] = useState(new Date());
   const [calendarData, setCalendarData] = useState<{ days: Array<{ date: string; status: string }> } | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const isLoading = calendarData === null && isOpen && !!customer;
 
   useEffect(() => {
-    if (isOpen && customer) {
-      fetchCalendarData(month.getMonth() + 1, month.getFullYear());
-    }
+    if (!isOpen || !customer) return;
+    const m = month.getMonth() + 1;
+    const y = month.getFullYear();
+    let cancelled = false;
+    fetch(`/api/customers/${customer.customerCode}/calendar?month=${m}&year=${y}`)
+      .then((res) => res.json())
+      .then((data) => { if (!cancelled) setCalendarData(data); })
+      .catch((error) => { if (!cancelled) console.error("Failed to fetch calendar:", error); });
+    return () => { cancelled = true; };
   }, [isOpen, customer, month]);
-
-  const fetchCalendarData = async (m: number, y: number) => {
-    if (!customer) return;
-    setIsLoading(true);
-    try {
-      const res = await fetch(`/api/customers/${customer.customerCode}/calendar?month=${m}&year=${y}`);
-      const data = await res.json();
-      setCalendarData(data);
-    } catch (error) {
-      console.error("Failed to fetch calendar:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   if (!customer) return null;
 

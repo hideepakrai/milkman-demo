@@ -4,7 +4,6 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
 const cwd = process.cwd();
-const envPath = path.join(cwd, ".env.local");
 
 function loadEnvFile(filePath) {
   if (!fs.existsSync(filePath)) {
@@ -36,7 +35,9 @@ function loadEnvFile(filePath) {
 }
 
 async function generatePins() {
-  loadEnvFile(envPath);
+  // Load both .env and .env.local (the repo ships credentials in .env)
+  loadEnvFile(path.join(cwd, ".env"));
+  loadEnvFile(path.join(cwd, ".env.local"));
 
   const mongoUri = process.env.MONGODB_URI;
   const dbName = process.env.MONGODB_DB_NAME || "milkman";

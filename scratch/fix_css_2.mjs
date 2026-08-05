@@ -1,8 +1,8 @@
-const fs = require('fs');
-const path = require('path');
+import fs from "fs";
+import path from "path";
 
-const filePath = path.join(process.cwd(), 'src', 'app', 'globals.css');
-let content = fs.readFileSync(filePath, 'utf8');
+const filePath = path.join(process.cwd(), "src", "app", "globals.css");
+const content = fs.readFileSync(filePath, "utf8");
 const lines = content.split(/\r?\n/);
 
 // We want the media query to contain the hero h2 and p rules
@@ -35,6 +35,6 @@ const newBlock = `.hero {
   }
 }`;
 
-lines.splice(startLine - 1, (endLine - startLine + 1), newBlock);
-fs.writeFileSync(filePath, lines.join('\n'));
-console.log('Fixed block!');
+lines.splice(startLine - 1, endLine - startLine + 1, newBlock);
+fs.writeFileSync(filePath, lines.join("\n"));
+console.log("Fixed block!");

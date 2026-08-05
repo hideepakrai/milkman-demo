@@ -33,14 +33,14 @@ export default function Home() {
                 Lightweight milk delivery management
               </h1>
             </div>              <Link
-              href="/en/admin/dashboard"
+              href="/admin/dashboard"
               className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-strong"
             >
               Open Admin
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              href="/en/customer/dashboard"
+              href="/customer/dashboard"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary"
             >
               Open Customer
@@ -81,13 +81,13 @@ export default function Home() {
               <p className="text-sm font-semibold text-primary">Quick Routes</p>
               <div className="mt-4 grid gap-3">
                 <Link
-                  href="/en/admin/dashboard"
+                  href="/admin/dashboard"
                   className="rounded-2xl border border-border bg-white px-4 py-3 text-sm font-medium transition hover:border-primary"
                 >
                   Admin dashboard
                 </Link>
                 <Link
-                  href="/hi/customer/dashboard"
+                  href="/customer/dashboard"
                   className="rounded-2xl border border-border bg-white px-4 py-3 text-sm font-medium transition hover:border-primary"
                 >
                   Customer dashboard

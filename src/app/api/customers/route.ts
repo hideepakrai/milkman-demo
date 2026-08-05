@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { connectToDatabase } from "@/lib/db/connect";
+import { getCustomerListData } from "@/lib/data-service";
 import { Area } from "@/models/area";
 import { CustomerProfile } from "@/models/customer-profile";
 import { MilkPlan } from "@/models/milk-plan";
@@ -28,8 +29,9 @@ async function createCustomerCode() {
 }
 
 export async function GET() {
-  await connectToDatabase();
-  const customers = await CustomerProfile.find().sort({ customerCode: 1 }).lean();
+  // Return the enriched customer shape (name, phone, due, status, quantity, etc.)
+  // so client-side lists can render directly without re-fetching related data.
+  const customers = await getCustomerListData();
   return NextResponse.json({ customers });
 }
 

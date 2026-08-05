@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { redirect } from "next/navigation";
 import {
   Building2,
   LogOut,
@@ -9,7 +10,8 @@ import {
 } from "lucide-react";
 import { CustomerShell } from "@/components/layout/customer-shell";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
-import { getCustomerProfileData } from "@/lib/data-service";
+import { getCustomerByUserId, getCustomerProfileData } from "@/lib/data-service";
+import { getCurrentUser } from "@/lib/auth";
 import {
   locales,
   localeLabels,
@@ -36,7 +38,15 @@ export default async function CustomerProfilePage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale });
-  const profile = await getCustomerProfileData();
+
+  const user = await getCurrentUser();
+  if (!user || user.role !== "CUSTOMER") {
+    redirect(`/${locale}/login`);
+  }
+  const linkedCustomer = await getCustomerByUserId(user.id);
+  const customerCode = linkedCustomer?.customerCode ?? null;
+
+  const profile = await getCustomerProfileData(customerCode);
 
   const preferredLanguageLabel = profile
     ? localeLabels[(profile.preferredLanguage as AppLocale) ?? "en"]?.native ??
@@ -127,7 +137,7 @@ export default async function CustomerProfilePage({
                     locales.map((code) => localeLabels[code].native).join(" · ")}
                 </div>
               </div>
-              <LanguageSwitcher locale={locale as AppLocale} />
+              <LanguageSwitcher />
             </div>
           </article>
 

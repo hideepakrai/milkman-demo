@@ -14,6 +14,7 @@ import {
 } from "@/components/layout/admin-ui";
 import { useAppDispatch } from "@/store/hooks";
 import { createCustomer, updateCustomer } from "@/store/slices/customerSlice/customerThunks";
+import type { CreateCustomerPayload } from "@/store/slices/customerSlice/CustomerType";
 
 type CustomerFormProps = {
   locale: string;
@@ -87,7 +88,7 @@ export function CustomerForm({
 
     try {
       const { internalNote, ...rest } = form;
-      const payload: any = {
+      const payload: CreateCustomerPayload = {
         ...rest,
         quantityLiters: Number(form.quantityLiters),
         pricePerLiter: Number(form.pricePerLiter),

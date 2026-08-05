@@ -1,13 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
-import { LogOut, User, Loader2, LogIn } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
+import { User } from "lucide-react";
 
 export function UserMenu({ locale }: { locale: string }) {
-  const t = useTranslations("nav");
   const pathname = usePathname();
 
   const [mounted, setMounted] = useState(false);

@@ -5,9 +5,6 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, CheckCircle2, Droplets, Loader2, LockKeyhole, User } from "lucide-react";
 
-const VALID_USERNAME = "admin";
-const VALID_PASSWORD = "admin123";
-
 type LoginPageProps = {
   locale?: string;
 };
@@ -36,7 +33,7 @@ export function LoginPage({ locale: localeProp = "en" }: LoginPageProps) {
             router.replace(targetDashboard);
           }
         }
-      } catch (err) {
+      } catch {
         // Not authenticated or error, ignore
       }
     }

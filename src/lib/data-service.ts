@@ -27,7 +27,7 @@ type PlainArea = {
 
 type PlainUser = {
   _id: string;
-  name: string;
+  name: string | { en?: string; hi?: string; pa?: string };
   phone: string;
   preferredLanguage?: string;
   status?: string;
@@ -76,6 +76,11 @@ type PlainDelivery = {
   extraQuantity?: number;
   status: "DELIVERED" | "SKIPPED" | "PAUSED";
   note?: string;
+  items?: Array<{
+    productCode?: string;
+    productName?: string;
+    quantity?: number;
+  }>;
 };
 
 type PlainDeliveryRecord = PlainDelivery;
@@ -165,6 +170,12 @@ type PlainPurchase = {
 
 function toDate(value?: Date | string | null) {
   return value ? new Date(value) : null;
+}
+
+function plainName(value: PlainUser["name"] | null | undefined): string {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  return value.en || value.hi || value.pa || "";
 }
 
 function startOfDay(date: Date) {
@@ -486,8 +497,9 @@ export async function getCustomerListData() {
 
       return {
         id: customerId,
+        _id: customerId,
         customerCode: entry.profile.customerCode,
-        name: entry.user?.name || entry.profile.customerCode,
+        name: plainName(entry.user?.name) || entry.profile.customerCode,
         phone: entry.user?.phone || "",
         areaCode: entry.profile.areaCode,
         areaName: entry.profile.areaName,
@@ -553,15 +565,78 @@ export async function getCustomerDetailData(identifier: string) {
     addressLine1: entity.profile.addressLine1,
     addressLine2: entity.profile.addressLine2 || "",
     landmark: entity.profile.landmark || "",
-    recentDeliveries: entity.monthExceptions.slice(0, 10).map((exception) => ({
-      dateLabel: formatDateLabel(exception.date),
-      status: exception.type === "PAUSE" ? "PAUSED" : "SKIPPED",
-      finalQuantity: 0,
-      extraQuantity: 0,
-      addOnItems: [] as DeliveryAddOnItem[],
-      note: "",
-    })),
+    recentDeliveries: await buildRecentDeliveries(entity.profile._id, base),
   };
+}
+
+async function buildRecentDeliveries(
+  customerId: unknown,
+  base: Awaited<ReturnType<typeof getBaseData>>,
+) {
+  const monthDeliveries = await Delivery.find({
+    customerId,
+    date: { $gte: base.monthStart, $lte: base.monthEnd },
+  })
+    .sort({ date: -1 })
+    .lean<PlainDelivery[]>();
+
+  const deliveredByDate = new Map(
+    monthDeliveries.map((delivery) => [
+      toDate(delivery.date)?.toDateString(),
+      delivery,
+    ]),
+  );
+  const exceptionByDate = new Map(
+    base.exceptionsMonth
+      .filter((exception) => String(exception.customerId) === String(customerId))
+      .map((exception) => [toDate(exception.date)?.toDateString(), exception]),
+  );
+
+  const dateKeys = new Set<string>([
+    ...monthDeliveries
+      .map((delivery) => toDate(delivery.date)?.toDateString())
+      .filter((value): value is string => Boolean(value)),
+    ...base.exceptionsMonth
+      .filter((exception) => String(exception.customerId) === String(customerId))
+      .map((exception) => toDate(exception.date)?.toDateString())
+      .filter((value): value is string => Boolean(value)),
+  ]);
+
+  return Array.from(dateKeys)
+    .map((dateKey) => {
+      const delivery = deliveredByDate.get(dateKey);
+      if (delivery) {
+        return {
+          dateLabel: formatDateLabel(delivery.date),
+          status: delivery.status,
+          // Guard against legacy records stored with baseQuantity/quantityDelivered
+          finalQuantity: delivery.actualQuantity ?? delivery.defaultQuantity ?? 0,
+          extraQuantity: Math.max(delivery.extraQuantity ?? 0, 0),
+          addOnItems: (delivery.items || []).map((item) => ({
+            productCode: item.productCode,
+            productName: item.productName,
+            quantity: item.quantity,
+          })),
+          note: delivery.note || "",
+        };
+      }
+
+      const exception = exceptionByDate.get(dateKey);
+      if (exception) {
+        return {
+          dateLabel: formatDateLabel(exception.date),
+          status: exception.type === "PAUSE" ? "PAUSED" : "SKIPPED",
+          finalQuantity: 0,
+          extraQuantity: 0,
+          addOnItems: [] as DeliveryAddOnItem[],
+          note: "",
+        };
+      }
+
+      return null;
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+    .slice(0, 10);
 }
 
 export async function getDefaultCustomerCode() {
@@ -605,7 +680,7 @@ export async function getDashboardData() {
     .slice(0, 6)
     .map((entry) => ({
       customerCode: entry.profile.customerCode,
-      name: entry.user?.name || entry.profile.customerCode,
+      name: plainName(entry.user?.name) || entry.profile.customerCode,
       info: `${(entry.activePlan?.quantityLiters || 0).toFixed(1)} L • ${entry.profile.areaName}`,
       issue:
         entry.totals.dueAmount > 0
@@ -686,7 +761,7 @@ export async function getDeliveryRunData(options?: {
 
     return {
       customerCode: entry.profile.customerCode,
-      customerName: entry.user?.name || entry.profile.customerCode,
+      customerName: plainName(entry.user?.name) || entry.profile.customerCode,
       quantityLabel: `${planQuantity.toFixed(1)} ${entry.activePlan?.unitLabel || "L"}`,
       status,
       deliveryInstruction: entry.profile.deliveryInstruction || "",
@@ -1011,7 +1086,7 @@ export async function getCustomerCalendarData(customerCode?: string | null) {
   return {
     customerCode: entity.profile.customerCode,
     customer: {
-      name: entity.user?.name || entity.profile.customerCode,
+      name: plainName(entity.user?.name) || entity.profile.customerCode,
       areaName: entity.profile.areaName,
       quantityLabel: `${(entity.activePlan?.quantityLiters || 0).toFixed(1)} ${entity.activePlan?.unitLabel || "L"}`,
       rate: entity.activePlan?.pricePerLiter || 0,
@@ -1268,7 +1343,7 @@ export async function getCustomerByUserId(userId: string) {
     return {
       id: String(profile._id),
       customerCode: profile.customerCode,
-      name: user?.name || profile.customerCode,
+      name: plainName(user?.name) || profile.customerCode,
       phone: user?.phone || "",
       areaCode: profile.areaCode,
       areaName: profile.areaName,

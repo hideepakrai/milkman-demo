@@ -6,7 +6,6 @@ import {
   Phone,
   WalletCards,
   Droplets,
-  History,
   ShieldCheck
 } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -20,7 +19,6 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   const { locale, customerId } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "admin.customers" });
-  const tStatus = await getTranslations({ locale, namespace: "status" });
   const customer = await getCustomerDetailData(customerId);
 
   if (!customer) notFound();

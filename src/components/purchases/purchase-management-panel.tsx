@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { ArrowDownToLine, PencilLine, Plus, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import {
-  AdminBadge,
+import { useRouter } from "next/navigation";import { AdminBadge,
   AdminButton,
   AdminCard,
   AdminField,
@@ -12,6 +10,12 @@ import {
   AdminSelect,
 } from "@/components/layout/admin-ui";
 import { formatCurrencyINR } from "@/lib/utils";
+import { useAppDispatch } from "@/store/hooks";
+import {
+  createPurchase,
+  deletePurchase,
+  updatePurchase,
+} from "@/store/slices/purchase/purchaseThunks";
 
 type PurchaseEntry = {
   id: string;
@@ -41,6 +45,7 @@ export function PurchaseManagementPanel({
   products,
 }: PurchaseManagementPanelProps) {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [form, setForm] = useState({
     vendorCode: vendors[0]?.code || "",
@@ -69,20 +74,17 @@ export function PurchaseManagementPanel({
   async function saveEntry() {
     setError("");
     try {
-      const response = await fetch(
-        selectedId ? `/api/purchases/${selectedId}` : "/api/purchases",
-        {
-          method: selectedId ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...form,
-            quantity: Number(form.quantity),
-            rate: Number(form.rate),
-          }),
-        },
-      );
-      const data = (await response.json()) as { error?: string };
-      if (!response.ok) throw new Error(data.error || "Unable to save purchase");
+      const payload = {
+        ...form,
+        quantity: Number(form.quantity),
+        rate: Number(form.rate),
+        paymentStatus: form.paymentStatus as "UNPAID" | "PARTIAL" | "PAID",
+      };
+      if (selectedId) {
+        await dispatch(updatePurchase({ purchaseId: selectedId, data: payload })).unwrap();
+      } else {
+        await dispatch(createPurchase(payload)).unwrap();
+      }
       router.refresh();
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Unable to save purchase");
@@ -93,9 +95,7 @@ export function PurchaseManagementPanel({
     if (!selectedId) return;
     setError("");
     try {
-      const response = await fetch(`/api/purchases/${selectedId}`, { method: "DELETE" });
-      const data = (await response.json()) as { error?: string };
-      if (!response.ok) throw new Error(data.error || "Unable to delete purchase");
+      await dispatch(deletePurchase(selectedId)).unwrap();
       setSelectedId(null);
       router.refresh();
     } catch (submitError) {

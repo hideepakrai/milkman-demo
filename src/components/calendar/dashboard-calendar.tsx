@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, Info, MinusCircle, PauseCircle } from "lucide-react";
+import { CheckCircle2, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CalendarDayRecord } from "@/lib/calendar";
 

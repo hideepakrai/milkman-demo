@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getCurrentUser } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/db/connect";
 import { CustomerProfile } from "@/models/customer-profile";
 import { MilkPlan } from "@/models/milk-plan";
@@ -18,7 +19,17 @@ export async function PATCH(
     const body = await request.json();
     const { quantityLiters } = quantitySchema.parse(body);
 
-    const profile = await CustomerProfile.findOne({ customerCode }).lean();
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const profileQuery: Record<string, unknown> = { customerCode };
+    if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") {
+      profileQuery.userId = user.id;
+    }
+
+    const profile = await CustomerProfile.findOne(profileQuery).lean();
     if (!profile) {
       return NextResponse.json({ error: "Customer not found" }, { status: 404 });
     }

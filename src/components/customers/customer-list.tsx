@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Filter, Search, CirclePlus, X } from "lucide-react";
+import { Search, CirclePlus } from "lucide-react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
 import { CustomerListItem } from "./customer-list-item";
 import { CustomerDetailModal } from "./customer-detail-modal";
+import GetAllCustomer from "./GetAllCustomer";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { CustomerRecord } from "@/store/slices/customerSlice/CustomerType";
 
 type CustomerListEntry = {
   id: string;
@@ -31,25 +34,16 @@ type CustomerListEntry = {
   lastPaymentDate?: string | Date | null;
 };
 
-type AreaOption = {
-  code: string;
-  name: string | {
-    en: string;
-    hi: string;
-    pa: string;
-  };
-};
-
 type CustomerListProps = {
-  customers: CustomerListEntry[];
-  areas: AreaOption[];
+  // customers: CustomerListEntry[];
+  // areas: AreaOption[];
   locale: string;
 };
 
-export function CustomerList({ customers, areas, locale }: CustomerListProps) {
-  const t = useTranslations("admin.customers");
-  const tCommon = useTranslations("common");
-  const localizedAreas = areas.map((area) => ({
+export function CustomerList({  locale }: CustomerListProps) {
+  const {listCustomer}= useSelector((state: RootState)=>state.customers)
+  const {listArea}= useSelector((state: RootState)=>state.areas)
+  const localizedAreas = listArea.map((area) => ({
     code: area.code,
     name: typeof area.name === "string"
       ? area.name
@@ -65,24 +59,29 @@ export function CustomerList({ customers, areas, locale }: CustomerListProps) {
 
   // SEARCH & FILTER LOGIC[cite: 1]
   const filteredCustomers = useMemo(() => {
-    return customers.filter((c) => {
+    return listCustomer.filter((c) => {
+      const customerName = typeof c.name === "string" ? c.name : "";
       const matchesSearch =
-        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.customerCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.phone?.includes(searchTerm);
 
       const matchesFilter = activeFilter === "ALL" || c.status === activeFilter;
       return matchesSearch && matchesFilter;
     });
-  }, [customers, searchTerm, activeFilter]);
+  }, [listCustomer, searchTerm, activeFilter]);
 
-  const handleViewCustomer = (customer: CustomerListEntry, mode: 'view' | 'details' | 'edit' | 'schedule' = 'view') => {
-    setSelectedCustomer(customer);
+  const handleViewCustomer = (customer: CustomerRecord, mode: 'view' | 'details' | 'edit' | 'schedule' = 'view') => {
+    setSelectedCustomer({ ...customer, id: customer._id });
     setModalMode(mode);
     setIsModalOpen(true);
   };
 
   return (
+    <>
+      {/* get all customers  */}
+      <GetAllCustomer/>
+
     <div className="space-y-6">
       {/* SEARCH, FILTER & ADD BAR */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
@@ -122,14 +121,13 @@ export function CustomerList({ customers, areas, locale }: CustomerListProps) {
       {/* RENDER FILTERED LIST */}
       <section className="grid gap-1">
         {filteredCustomers.length > 0 ? (
-          filteredCustomers.map((customer) => (
+          filteredCustomers.map((customer:CustomerRecord) => (
             <CustomerListItem
-              key={customer.id}
+              key={customer._id}
               customer={customer}
-              locale={locale}
               onView={(mode) => handleViewCustomer(customer, mode)}
-              isMenuOpen={openMenuId === customer.id}
-              setMenuOpen={(isOpen) => setOpenMenuId(isOpen ? customer.id : null)}
+              isMenuOpen={openMenuId === customer._id}
+              setMenuOpen={(isOpen) => setOpenMenuId(isOpen ? customer._id : null)}
             />
           ))
         ) : (
@@ -148,5 +146,6 @@ export function CustomerList({ customers, areas, locale }: CustomerListProps) {
         mode={modalMode}
       />
     </div>
+    </>
   );
 }
