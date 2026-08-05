@@ -4,7 +4,6 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Filter, MapPin, X } from "lucide-react";
 import { MonthGrid } from "@/components/calendar/month-grid";
 import { AdminBadge } from "@/components/layout/admin-ui";
-import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import type { CalendarDayRecord } from "@/lib/calendar";
 

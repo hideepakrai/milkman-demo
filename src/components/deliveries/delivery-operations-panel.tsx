@@ -3,16 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, Check, Clock, Filter, MapPin, Minus, Pause, Play, Plus, X } from "lucide-react";
-import {
-  AdminBadge,
-  AdminButton,
-  AdminCard,
-  AdminField,
-  AdminInput,
-  AdminSelect,
-} from "@/components/layout/admin-ui";
 import { AdminModal } from "@/components/layout/admin-modal";
-import { cn, formatCurrencyINR } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { useAppDispatch } from "@/store/hooks";
+import { resetDelivery, saveDelivery } from "@/store/slices/delivery/deliveryThunks";
 
 type DeliveryStatus = "ALL" | "DELIVERED" | "SKIPPED" | "PAUSED" | "PENDING";
 
@@ -56,12 +50,12 @@ const statusOptions: Array<{ value: DeliveryStatus; label: string }> = [
   { value: "PENDING", label: "Pending" },
 ];
 
-function getStatusTone(status: DeliveryEntry["status"]) {
-  if (status === "DELIVERED") return "success";
-  if (status === "PAUSED") return "warning";
-  if (status === "SKIPPED") return "danger";
-  return "blue";
-}
+const STATUS_PRIORITY: Record<string, number> = {
+  PENDING: 1,
+  PAUSED: 2,
+  SKIPPED: 3,
+  DELIVERED: 4,
+};
 
 function getAreaDisplayName(
   name: string | { en: string; hi: string; pa: string },
@@ -79,23 +73,19 @@ export function DeliveryOperationsPanel({
   startRun,
 }: DeliveryOperationsPanelProps) {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [localEntries, setLocalEntries] = useState(entries);
+  const [prevEntries, setPrevEntries] = useState(entries);
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
   const [isLocationOpen, setIsLocationOpen] = useState(startRun);
   const [locationOptions, setLocationOptions] = useState(areas);
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
   const [locationError, setLocationError] = useState("");
 
-  const STATUS_PRIORITY: Record<string, number> = {
-    PENDING: 1,
-    PAUSED: 2,
-    SKIPPED: 3,
-    DELIVERED: 4,
-  };
-
-  useEffect(() => {
+  if (entries !== prevEntries) {
+    setPrevEntries(entries);
     setLocalEntries(entries);
-  }, [entries]);
+  }
 
   const sortedEntries = useMemo(() => {
     return [...localEntries].sort((a, b) => {
@@ -207,28 +197,15 @@ export function DeliveryOperationsPanel({
 
     try {
       if (isTogglingOff) {
-        await fetch(`/api/deliveries?customerCode=${customerCode}&date=${filters.date}`, {
-          method: "DELETE",
-        });
+        await dispatch(resetDelivery({ customerCode, date: filters.date })).unwrap();
       } else {
         const currentEntry = localEntries.find(e => e.customerCode === customerCode);
-        const body: {
-          customerCode: string;
-          status: typeof finalType;
-          date: string;
-          actualQuantity: number;
-        } = {
+        await dispatch(saveDelivery({
           customerCode,
-          status: finalType,
+          status: finalType as "DELIVERED" | "SKIPPED" | "PAUSED",
           date: filters.date,
           actualQuantity: currentEntry?.actualQuantity ?? currentEntry?.defaultQuantity ?? 0,
-        };
-
-        await fetch("/api/deliveries", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
+        })).unwrap();
       }
       router.refresh();
     } catch (error) {
@@ -250,16 +227,12 @@ export function DeliveryOperationsPanel({
 
     try {
       await Promise.all(pending.map(e =>
-        fetch("/api/deliveries", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            customerCode: e.customerCode,
-            status: "DELIVERED",
-            date: filters.date,
-            actualQuantity: e.actualQuantity || e.defaultQuantity || 0
-          }),
-        })
+        dispatch(saveDelivery({
+          customerCode: e.customerCode,
+          status: "DELIVERED",
+          date: filters.date,
+          actualQuantity: e.actualQuantity || e.defaultQuantity || 0
+        })).unwrap()
       ));
       router.refresh();
     } catch (error) {
@@ -281,9 +254,7 @@ export function DeliveryOperationsPanel({
 
     try {
       await Promise.all(delivered.map(e =>
-        fetch(`/api/deliveries?customerCode=${e.customerCode}&date=${filters.date || ""}`, {
-          method: "DELETE",
-        })
+        dispatch(resetDelivery({ customerCode: e.customerCode, date: filters.date || undefined })).unwrap()
       ));
       router.refresh();
     } catch (error) {
@@ -679,7 +650,7 @@ export function DeliveryOperationsPanel({
               className="flex items-center justify-between px-5 py-4 rounded-[16px] bg-white border border-gray-100 hover:bg-gray-50 text-left text-sm font-black text-gray-700 transition-colors group"
               onClick={() => selectLocation(area.code)}
             >
-              <span>{area.name}</span>
+              <span>{getAreaDisplayName(area.name, locale)}</span>
               <MapPin className="h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
             </button>
           ))}

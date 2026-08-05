@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Clock, Info, ChevronRight, Search, Filter, Calendar, ChevronDown, ChevronUp, History, WalletCards, CheckCircle2 } from "lucide-react";
+import { Clock, Info, ChevronRight, Search, Filter, Calendar, ChevronUp, History, WalletCards, CheckCircle2 } from "lucide-react";
 import { AdminBadge, AdminButton } from "@/components/layout/admin-ui";
 import { AdminModal } from "@/components/layout/admin-modal";
 import { formatCurrencyINR, cn } from "@/lib/utils";
-import { Link } from "@/i18n/routing";
 
 type Transaction = {
   id: string;
@@ -62,7 +61,7 @@ export function RecentEntries({ payments, customers, viewAllLabel }: RecentEntri
   const displayedPayments = isExpanded ? payments : payments.slice(0, initialLimit);
 
   // Helper to format real-time activity
-  const formatActivityTime = (dateInput: Date | string, fallbackLabel: string) => {
+  const formatActivityTime = (dateInput: Date | string) => {
     const d = new Date(dateInput);
     const now = new Date();
     
@@ -136,10 +135,7 @@ export function RecentEntries({ payments, customers, viewAllLabel }: RecentEntri
 
             <div className="flex items-center gap-1.5 text-[10px] font-medium text-[var(--admin-muted)]">
               <Clock className="h-3 w-3" />
-              {formatActivityTime(group.transactions[0]?.date || group.date, group.dateLabel)}
-            </div>
-
-            <div className="mt-0.5 flex items-center justify-between">
+              {formatActivityTime(group.transactions[0]?.date || group.date)}
               <p className="text-[15px] font-black text-emerald-600 sm:text-sm sm:font-extrabold">
                 {formatCurrencyINR(group.totalAmount)}
               </p>
@@ -266,7 +262,7 @@ export function RecentEntries({ payments, customers, viewAllLabel }: RecentEntri
                       <div className="flex items-center justify-between">
                         <AdminBadge tone="success" className="rounded-md px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider sm:text-[9px]">Success</AdminBadge>
                         <p className="text-[10px] font-bold text-[var(--admin-muted)] uppercase tracking-tight sm:text-[11px]">
-                           {formatActivityTime(tx.date, selectedGroup.dateLabel)}
+                           {formatActivityTime(tx.date)}
                         </p>
                       </div>
 
@@ -365,7 +361,7 @@ export function RecentEntries({ payments, customers, viewAllLabel }: RecentEntri
                   <div className="flex items-center gap-3">
                     <span className="flex items-center gap-1 text-[10px] font-bold text-[var(--admin-muted)]">
                       <Calendar className="h-3 w-3" />
-                      {formatActivityTime(group.transactions[0]?.date || group.date, group.dateLabel)}
+                      {formatActivityTime(group.transactions[0]?.date || group.date)}
                     </span>
                     <div className="flex gap-1">
                       {Array.from(new Set(group.transactions.map(t => t.mode))).map(m => (

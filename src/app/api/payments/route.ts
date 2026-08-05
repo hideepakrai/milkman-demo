@@ -12,9 +12,28 @@ const paymentSchema = z.object({
   date: z.string().trim().optional(),
 });
 
-export async function GET() {
+export async function GET(request: Request) {
   await connectToDatabase();
-  const payments = await Payment.find().sort({ date: -1, createdAt: -1 }).lean();
+  const { searchParams } = new URL(request.url);
+  const limit = Math.min(Math.max(parseInt(searchParams.get("limit") || "100", 10) || 100, 1), 500);
+  const from = searchParams.get("from");
+  const to = searchParams.get("to");
+
+  const query: Record<string, unknown> = {};
+  if (from || to) {
+    query.date = {};
+    if (from) {
+      (query.date as Record<string, unknown>).$gte = new Date(from);
+    }
+    if (to) {
+      (query.date as Record<string, unknown>).$lte = new Date(to);
+    }
+  }
+
+  const payments = await Payment.find(query)
+    .sort({ date: -1, createdAt: -1 })
+    .limit(limit)
+    .lean();
   return NextResponse.json({ payments });
 }
 

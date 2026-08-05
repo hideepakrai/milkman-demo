@@ -2,27 +2,23 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  BadgeIndianRupee, 
-  ChevronRight, 
-  CircleDollarSign, 
-  Clock, 
-  History, 
-  Plus, 
-  WalletCards,
+import {
+  Clock,
+  History,
+  Plus,
   CheckCircle2
 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { 
-  AdminBadge, 
-  AdminButton, 
-  AdminCard, 
-  AdminField, 
-  AdminInput, 
-  AdminSelect 
+import {
+  AdminBadge,
+  AdminButton,
+  AdminField,
+  AdminInput,
+  AdminSelect
 } from "@/components/layout/admin-ui";
 import { AdminModal } from "@/components/layout/admin-modal";
 import { formatCurrencyINR, cn } from "@/lib/utils";
+import { useAppDispatch } from "@/store/hooks";
+import { createPayment } from "@/store/slices/payment/paymentThunks";
 
 type Payment = {
   id: string;
@@ -59,9 +55,7 @@ type BillingManagementProps = {
 
 export function BillingManagement({ customers }: BillingManagementProps) {
   const router = useRouter();
-  const t = useTranslations("admin.billing");
-  const tStatus = useTranslations("status");
-  const tCommon = useTranslations("common");
+  const dispatch = useAppDispatch();
 
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerAccount | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -94,20 +88,12 @@ export function BillingManagement({ customers }: BillingManagementProps) {
     setFeedback(null);
 
     try {
-      const response = await fetch("/api/payments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customerCode: selectedCustomer.customerCode,
-          amount: Number(amount),
-          mode,
-          note,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save payment");
-      }
+      await dispatch(createPayment({
+        customerCode: selectedCustomer.customerCode,
+        amount: Number(amount),
+        mode: mode as "CASH" | "UPI" | "BANK",
+        note,
+      })).unwrap();
 
       setFeedback({
         message: `₹${amount} received from ${selectedCustomer.name}`,
@@ -120,7 +106,7 @@ export function BillingManagement({ customers }: BillingManagementProps) {
         router.refresh();
       }, 1500);
 
-    } catch (error) {
+    } catch {
       setFeedback({
         message: "Unable to save payment. Please try again.",
         type: "error",

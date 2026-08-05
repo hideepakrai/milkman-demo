@@ -8,7 +8,6 @@ import {
   CirclePause, 
   CirclePlay,
   CircleX, 
-  CreditCard, 
   MapPin, 
   Phone, 
   WalletCards 
@@ -16,6 +15,8 @@ import {
 import { AdminBadge, AdminDivider } from "@/components/layout/admin-ui";
 import { AdminModal } from "@/components/layout/admin-modal";
 import { cn, formatCurrencyINR } from "@/lib/utils";
+import { useAppDispatch } from "@/store/hooks";
+import { fetchCustomer } from "@/store/slices/customerSlice/customerThunks";
 import { CustomerForm } from "./customer-form";
 
 type DeliveryLog = {
@@ -65,21 +66,26 @@ export function CustomerDetailModal({
   const [logs, setLogs] = useState<DeliveryLog[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fullData, setFullData] = useState<CustomerDetailData | null>(null);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (isOpen && customer) {
       Promise.resolve().then(() => setIsLoading(true));
-      fetch(`/api/customers/${customer.customerCode}`)
-        .then((res) => res.json())
-        .then((data: { customer?: CustomerDetailData }) => {
-          setFullData(data.customer ?? null);
-          if (data.customer?.recentDeliveries) {
-            setLogs(data.customer.recentDeliveries);
+      dispatch(fetchCustomer(customer.customerCode))
+        .unwrap()
+        .then((value) => {
+          const data = value as unknown as CustomerDetailData;
+          setFullData(data ?? null);
+          if (data?.recentDeliveries) {
+            setLogs(data.recentDeliveries);
           }
+        })
+        .catch(() => {
+          setFullData(null);
         })
         .finally(() => setIsLoading(false));
     }
-  }, [isOpen, customer]);
+  }, [isOpen, customer, dispatch]);
 
   if (!customer) return null;
   const activeExceptions = fullData?.exceptions ?? [];

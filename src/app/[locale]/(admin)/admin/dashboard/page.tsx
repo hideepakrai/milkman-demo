@@ -5,20 +5,19 @@ import {
   Droplets,
   Gauge,
   MoveRight,
-  ShoppingCart,
   Users,
 } from "lucide-react";
 import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AdminShell } from "@/components/layout/admin-shell";
-import { AdminBadge, AdminCard, AdminStatCard } from "@/components/layout/admin-ui";
+import { AdminBadge, AdminStatCard } from "@/components/layout/admin-ui";
 import {
   getAdminCalendarData,
   getDashboardData,
   getPurchaseLedgerData,
 } from "@/lib/data-service";
-import { cn, formatCurrencyINR } from "@/lib/utils";
+import { formatCurrencyINR } from "@/lib/utils";
 
 type AdminDashboardPageProps = {
   params: Promise<{ locale: string }>;
@@ -282,89 +281,3 @@ export default async function AdminDashboardPage({
     </AdminShell>
   );
 }
-const customStyles = `
-  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-  
-  @media (max-width: 768px) {
-    .stats-row { 
-      display: flex;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      padding-bottom: 8px;
-      margin: 0 -16px;
-      padding-left: 16px;
-      padding-right: 16px;
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none;  /* IE and Edge */
-    }
-    .stats-row::-webkit-scrollbar {
-      display: none;
-    }
-    .stat-card {
-      min-width: 200px;
-      flex-shrink: 0;
-      scroll-snap-align: start;
-    }
-  }
-
-  .stat-card { 
-    background: white; 
-    border-radius: 20px; 
-    padding: 16px; 
-    position: relative; 
-    overflow: hidden; 
-    border: 1px solid #f3f4f6;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-  }
-
-  .stat-card .blob { 
-    position: absolute; 
-    right: -20px; 
-    top: -20px; 
-    width: 100px; 
-    height: 100px; 
-    border-radius: 50%; 
-    filter: blur(20px);
-  }
-
-  .stat-lbl { 
-    font-size: 10px; 
-    font-weight: 800; 
-    color: #9CA3AF; 
-    margin-bottom: 8px; 
-    text-transform: uppercase; 
-    letter-spacing: 0.05em; 
-  }
-
-  .stat-val { 
-    font-size: 28px; 
-    font-weight: 900; 
-    color: #111827; 
-    line-height: 1; 
-    margin-bottom: 12px; 
-    letter-spacing: -0.02em; 
-  }
-
-  .stat-pill { 
-    font-size: 10px; 
-    font-weight: 700; 
-    padding: 4px 10px; 
-    border-radius: 20px; 
-    display: inline-block; 
-  }
-  
-  .mid-row { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: 16px; }
-  .bottom-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
-
-  .pill-green { background: #f0fdf4; color: #15803d; }
-  .pill-blue { background: #eff6ff; color: #1d4ed8; }
-  .pill-amber { background: #fffbeb; color: #b45309; }
-  .pill-red { background: #fef2f2; color: #b91c1c; }
-
-  @media (max-width: 1200px) {
-    .mid-row { grid-template-columns: 1fr 1fr; }
-  }
-  @media (max-width: 768px) {
-    .mid-row, .bottom-row { grid-template-columns: 1fr; }
-  }
-`;

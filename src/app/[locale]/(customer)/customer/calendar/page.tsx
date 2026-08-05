@@ -1,8 +1,10 @@
 import { CalendarClock, CircleDollarSign, Droplets } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { redirect } from "next/navigation";
 import { MonthGrid } from "@/components/calendar/month-grid";
 import { CustomerShell } from "@/components/layout/customer-shell";
-import { getCustomerCalendarData } from "@/lib/data-service";
+import { getCustomerCalendarData, getCustomerByUserId } from "@/lib/data-service";
+import { getCurrentUser } from "@/lib/auth";
 import { formatCurrencyINR } from "@/lib/utils";
 
 type CustomerCalendarPageProps = {
@@ -15,7 +17,15 @@ export default async function CustomerCalendarPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale });
-  const calendar = await getCustomerCalendarData();
+
+  const user = await getCurrentUser();
+  if (!user || user.role !== "CUSTOMER") {
+    redirect(`/${locale}/login`);
+  }
+  const linkedCustomer = await getCustomerByUserId(user.id);
+  const customerCode = linkedCustomer?.customerCode ?? null;
+
+  const calendar = await getCustomerCalendarData(customerCode);
 
   if (!calendar) {
     return (

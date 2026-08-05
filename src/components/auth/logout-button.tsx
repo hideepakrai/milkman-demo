@@ -28,7 +28,7 @@ export function LogoutButton({ locale }: LogoutButtonProps) {
         if (isMounted) {
           setIsLoggedIn(false);
         }
-      } catch (err) {
+      } catch {
         if (isMounted) {
           setIsLoggedIn(false);
         }

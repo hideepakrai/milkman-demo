@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CalendarDays, CirclePause, CirclePlay, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { AdminBadge, AdminDivider } from "@/components/layout/admin-ui";
+import { AdminDivider } from "@/components/layout/admin-ui";
 
 type CustomerSchedulePopoverProps = {
   isOpen: boolean;

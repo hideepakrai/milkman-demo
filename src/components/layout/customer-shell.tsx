@@ -6,10 +6,8 @@ import {
   CalendarDays,
   History,
   Home,
-  IndianRupee,
   Plus,
   User,
-  Droplets,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
